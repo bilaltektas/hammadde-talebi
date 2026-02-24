@@ -2,271 +2,210 @@
 <html lang="tr">
 <head>
 <meta charset="UTF-8">
-<title>Akıllı Stok Asistanı</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mobil Stok Asistanı</title>
 
 <style>
+
+:root{
+  --glass: rgba(255,255,255,0.1);
+  --blur: blur(15px);
+}
+
+*{
+  box-sizing:border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
 body{
-    margin:0;
-    font-family: 'Segoe UI', sans-serif;
-    background: linear-gradient(135deg,#0f2027,#203a43,#2c5364);
-    color:white;
-    overflow-x:hidden;
+  margin:0;
+  font-family: 'Segoe UI', sans-serif;
+  background: linear-gradient(135deg,#141e30,#243b55);
+  color:white;
+  overflow-x:hidden;
 }
 
-h1{
-    text-align:center;
-    padding:20px;
-    font-size:28px;
-    animation: glow 2s infinite alternate;
+section{
+  min-height:100vh;
+  padding:30px 15px;
+  text-align:center;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
 }
 
-@keyframes glow{
-    from{ text-shadow:0 0 10px #00ffff; }
-    to{ text-shadow:0 0 25px #00ffff; }
+h1,h2{
+  margin-bottom:25px;
 }
 
-.container{
-    text-align:center;
-    padding:20px;
-}
-
-button{
-    padding:15px 25px;
-    margin:10px;
-    border:none;
-    border-radius:10px;
-    cursor:pointer;
-    font-size:16px;
-    background:linear-gradient(45deg,#00c6ff,#0072ff);
-    color:white;
-    transition:0.3s;
-}
-
-button:hover{
-    transform:scale(1.1);
-    box-shadow:0 0 20px #00ffff;
-}
-
-.products{
-    display:flex;
-    flex-wrap:wrap;
-    justify-content:center;
+.grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
+  gap:15px;
+  width:100%;
+  max-width:500px;
 }
 
 .card{
-    background:rgba(255,255,255,0.1);
-    padding:15px;
-    margin:10px;
-    border-radius:12px;
-    cursor:pointer;
-    transition:0.3s;
+  padding:20px;
+  border-radius:20px;
+  backdrop-filter: var(--blur);
+  background: var(--glass);
+  border:1px solid rgba(255,255,255,0.2);
+  font-weight:bold;
+  font-size:16px;
+  transition:0.3s;
+  cursor:pointer;
 }
 
-.card:hover{
-    background:#00c6ff;
-    color:black;
-    transform:scale(1.1);
+.card:active{
+  transform:scale(0.95);
+}
+
+.firm-bim{ background:linear-gradient(135deg,#00c853,#64dd17); }
+.firm-file{ background:linear-gradient(135deg,#2962ff,#00b0ff); }
+.firm-metro{ background:linear-gradient(135deg,#ff6d00,#ff9100); }
+.firm-knorr{ background:linear-gradient(135deg,#d50000,#ff1744); }
+
+.product{
+  font-size:14px;
+}
+
+input{
+  width:90%;
+  max-width:300px;
+  padding:18px;
+  font-size:18px;
+  border-radius:15px;
+  border:none;
+  text-align:center;
+  margin-top:15px;
+}
+
+button{
+  margin-top:20px;
+  padding:18px 35px;
+  border:none;
+  border-radius:20px;
+  font-size:18px;
+  font-weight:bold;
+  cursor:pointer;
+  background:linear-gradient(45deg,#00e5ff,#2979ff);
+  color:white;
+  transition:0.3s;
+}
+
+button:active{
+  transform:scale(0.95);
 }
 
 .result{
-    font-size:40px;
-    margin-top:30px;
-    animation:blink 1s infinite;
+  margin-top:30px;
+  font-size:32px;
+  font-weight:bold;
+  animation:blink 1s infinite;
 }
 
 @keyframes blink{
-    50%{ opacity:0.2; }
+  50%{ opacity:0.3; }
 }
+
+.fadeIn{
+  animation:fade 0.8s ease forwards;
+}
+
+@keyframes fade{
+  from{opacity:0; transform:translateY(20px);}
+  to{opacity:1; transform:translateY(0);}
+}
+
 </style>
 </head>
 
 <body>
 
-<h1>AKILLI STOK SİPARİŞ ASİSTANI</h1>
-
-<div class="container">
-
-<div id="firms"></div>
-<div id="products" class="products"></div>
-<div id="controls"></div>
-<div id="result" class="result"></div>
-
+<section id="firms">
+<h1>🏢 Firma Seçiniz</h1>
+<div class="grid">
+<div class="card firm-bim" onclick="selectFirm('BİM')">🟢 BİM</div>
+<div class="card firm-file" onclick="selectFirm('FİLE')">🔵 FİLE</div>
+<div class="card firm-metro" onclick="selectFirm('METRO')">🟠 METRO</div>
+<div class="card firm-knorr" onclick="selectFirm('KNORR')">🔴 KNORR</div>
 </div>
+</section>
+
+<section id="productsSection">
+<h2 id="productTitle"></h2>
+<div class="grid" id="products"></div>
+</section>
+
+<section id="stockSection">
+<h2 id="stockTitle"></h2>
+<input type="number" id="stockInput" placeholder="📦 Depodaki KG miktarı">
+<button onclick="calculate()">🚀 SORGULA</button>
+<div id="result" class="result"></div>
+</section>
 
 <script>
 
-// TÜM VERİLER (EKSİKSİZ)
-
-const data = {
-
-"BİM":{
-"KİMYON":20000,
-"HİNDİSTAN CEVİZİ":30000,
-"NANE":10000,
-"SUSAM":25000,
-"TARÇIN":10000,
-"ÇÖREKOTU":15000,
-"PUL BİBER":80000,
-"KARABİBER":30000,
-"ACI TOZ BİBER":15000,
-"TATLI TOZ BİBER":15000,
-"KEKİK":15000,
-"GALETA UNU":150000,
-"MISIR UNU":150000
-},
-
-"FİLE":{
-"KARABİBER":3000,
-"TARÇIN":3000,
-"ZERDEÇAL":3000,
-"KEKİK":5000,
-"İSOT":10000
-},
-
-"METRO":{
-"TATLI TOZ BİBER":1000,
-"ÇİLEKLİ PUDİNG":2000,
-"ÇÖREK OTU":1000,
-"HİNDİSTAN CEVİZİ":2000,
-"İSOT":1500,
-"KAKAOLU PUDİNG":5000,
-"KARABİBER":5000,
-"KARANFİL":250,
-"KEKİK":2500,
-"KİMYON":3000,
-"KÖRİ":1000,
-"KUŞ ÜZÜMÜ":1000,
-"LİMON TUZU":3000,
-"MAVİ HAŞHAŞ":500,
-"MUZLU PUDİNG":2000,
-"NANE":3000,
-"PANKO":15000,
-"PUL BİBER":20000,
-"TOZ SARIMSAK":1000,
-"SUMAK":3000,
-"SUSAM":2000,
-"TANE KARABİBER":500,
-"TARÇIN":300,
-"TEMPURA UNU":500,
-"VANİLYALI PUDİNG":1000,
-"YENİBAHAR":250,
-"TOZ ZERDEÇAL":500
-},
-
-"KNORR":{
-"ÇÖREKOTU":2000,
-"HİNDİSTAN CEVİZİ":2000,
-"KARABİBER":5000,
-"KARANFİL":500,
-"KEKİK":2500,
-"KİMYON":3000,
-"KÖRİ":2000,
-"NANE":2000,
-"PANKO":5000,
-"PUL BİBER":5000,
-"TARÇIN":2000,
-"TATLI TOZ BİBER":5000,
-"ZENCEFİL":2000,
-"ZERDEÇAL":3000
-}
-
+const data={
+"BİM":{"KİMYON":20000,"HİNDİSTAN CEVİZİ":30000,"NANE":10000,"SUSAM":25000,"TARÇIN":10000,"ÇÖREKOTU":15000,"PUL BİBER":80000,"KARABİBER":30000,"ACI TOZ BİBER":15000,"TATLI TOZ BİBER":15000,"KEKİK":15000,"GALETA UNU":150000,"MISIR UNU":150000},
+"FİLE":{"KARABİBER":3000,"TARÇIN":3000,"ZERDEÇAL":3000,"KEKİK":5000,"İSOT":10000},
+"METRO":{"TATLI TOZ BİBER":1000,"ÇİLEKLİ PUDİNG":2000,"ÇÖREK OTU":1000,"HİNDİSTAN CEVİZİ":2000,"İSOT":1500,"KAKAOLU PUDİNG":5000,"KARABİBER":5000,"KARANFİL":250,"KEKİK":2500,"KİMYON":3000,"KÖRİ":1000,"KUŞ ÜZÜMÜ":1000,"LİMON TUZU":3000,"MAVİ HAŞHAŞ":500,"MUZLU PUDİNG":2000,"NANE":3000,"PANKO":15000,"PUL BİBER":20000,"TOZ SARIMSAK":1000,"SUMAK":3000,"SUSAM":2000,"TANE KARABİBER":500,"TARÇIN":300,"TEMPURA UNU":500,"VANİLYALI PUDİNG":1000,"YENİBAHAR":250,"TOZ ZERDEÇAL":500},
+"KNORR":{"ÇÖREKOTU":2000,"HİNDİSTAN CEVİZİ":2000,"KARABİBER":5000,"KARANFİL":500,"KEKİK":2500,"KİMYON":3000,"KÖRİ":2000,"NANE":2000,"PANKO":5000,"PUL BİBER":5000,"TARÇIN":2000,"TATLI TOZ BİBER":5000,"ZENCEFİL":2000,"ZERDEÇAL":3000}
 };
 
-let selectedFirm = null;
-let selectedProduct = null;
+let selectedFirm=null;
+let selectedProduct=null;
 
 function speak(text){
-    let msg = new SpeechSynthesisUtterance(text);
-    msg.lang = "tr-TR";
-    speechSynthesis.speak(msg);
+  let msg=new SpeechSynthesisUtterance(text);
+  msg.lang="tr-TR";
+  speechSynthesis.speak(msg);
 }
 
-function normalize(text){
-    return text.toUpperCase()
-        .replace("ZENCEFIL","ZENCEFİL")
-        .replace("ÇÖREK OTU","ÇÖREKOTU");
-}
-
-function showFirms(){
-    let div = document.getElementById("firms");
-    div.innerHTML = "<h2>HANGİ FİRMA İLE İŞLEM YAPMAK İSTİYORSUNUZ?</h2>";
-    for(let firm in data){
-        div.innerHTML += `<button onclick="selectFirm('${firm}')">${firm}</button>`;
-    }
+function vibrate(){
+  if(navigator.vibrate) navigator.vibrate(200);
 }
 
 function selectFirm(firm){
-    selectedFirm = firm;
-    document.getElementById("products").innerHTML="";
-    document.getElementById("controls").innerHTML="";
-    document.getElementById("result").innerHTML="";
-    listProducts();
-    speak(firm + " firması seçildi. Hangi hammaddeyi sormak istiyorsunuz?");
-}
-
-function listProducts(){
-    let div = document.getElementById("products");
-    div.innerHTML="";
-    for(let product in data[selectedFirm]){
-        div.innerHTML += `<div class="card" onclick="selectProduct('${product}')">${product}</div>`;
-    }
+  selectedFirm=firm;
+  const container=document.getElementById("products");
+  container.innerHTML="";
+  document.getElementById("productTitle").innerText="📦 "+firm+" Ürünleri";
+  for(let p in data[firm]){
+    container.innerHTML+=`<div class="card product fadeIn" onclick="selectProduct('${p}')">✨ ${p}</div>`;
+  }
+  document.getElementById("productsSection").scrollIntoView({behavior:"smooth"});
+  vibrate();
 }
 
 function selectProduct(product){
-    selectedProduct = product;
-    document.getElementById("controls").innerHTML=
-    `
-    <h3>${product} seçildi</h3>
-    <button onclick="askStockVoice()">Sesli Stok Gir</button>
-    <input type="number" id="manualStock" placeholder="Manuel KG gir">
-    <button onclick="calculateManual()">Hesapla</button>
-    `;
-    speak(product + " için depodaki stok miktarı nedir?");
+  selectedProduct=product;
+  document.getElementById("stockTitle").innerText="📊 "+product+" Stok Giriniz";
+  document.getElementById("stockSection").scrollIntoView({behavior:"smooth"});
+  vibrate();
 }
 
-function askStockVoice(){
-    const rec = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-    rec.lang="tr-TR";
-    rec.start();
+function calculate(){
+  let current=parseFloat(document.getElementById("stockInput").value);
+  let min=data[selectedFirm][selectedProduct];
+  let diff=min-current;
 
-    rec.onresult=function(event){
-        let spoken = event.results[0][0].transcript;
-        let number = parseFloat(spoken.replace(",","."));
-        calculate(number);
-    }
+  if(diff<=0){
+    document.getElementById("result").innerText="✅ STOK YETERLİ";
+    speak("Stok yeterli.");
+    vibrate();
+    return;
+  }
+
+  let ton=Math.ceil(diff/1000);
+  let msg="🔥 "+ton+" TON SİPARİŞ VERMELİSİN!";
+  document.getElementById("result").innerText=msg;
+  speak(ton+" ton sipariş vermelisin.");
+  vibrate();
 }
-
-function calculateManual(){
-    let val = parseFloat(document.getElementById("manualStock").value);
-    calculate(val);
-}
-
-function calculate(currentStock){
-
-    let min = data[selectedFirm][selectedProduct];
-
-    if(!min || min<=0){
-        alert("Bu ürün için minimum kapasite tanımlı değil.");
-        return;
-    }
-
-    let diff = min - currentStock;
-
-    if(diff <= 0){
-        document.getElementById("result").innerHTML="STOK YETERLİ";
-        speak("Stok yeterli.");
-        return;
-    }
-
-    let ton = (diff/1000).toFixed(0);
-
-    let message = ton + " TON SİPARİŞ VERMELİSİN.";
-
-    document.getElementById("result").innerHTML=message;
-    speak(message);
-}
-
-showFirms();
 
 </script>
 
