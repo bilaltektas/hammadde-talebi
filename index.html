@@ -8,8 +8,8 @@
 <style>
 
 :root{
-  --glass: rgba(255,255,255,0.1);
-  --blur: blur(15px);
+  --glass: rgba(255,255,255,0.12);
+  --blur: blur(18px);
 }
 
 *{
@@ -19,10 +19,27 @@
 
 body{
   margin:0;
-  font-family: 'Segoe UI', sans-serif;
-  background: linear-gradient(135deg,#141e30,#243b55);
+  font-family:'Segoe UI',sans-serif;
+  background:linear-gradient(135deg,#141e30,#243b55);
   color:white;
   overflow-x:hidden;
+  scroll-behavior:smooth;
+}
+
+/* Arkaplan canlı hareket */
+body::before{
+  content:"";
+  position:fixed;
+  width:200%;
+  height:200%;
+  background:radial-gradient(circle at 20% 30%,#00e5ff33,transparent),
+             radial-gradient(circle at 70% 60%,#ff174433,transparent);
+  animation:moveBg 12s infinite alternate linear;
+  z-index:-1;
+}
+@keyframes moveBg{
+  from{transform:translate(-10%,-10%)}
+  to{transform:translate(10%,10%)}
 }
 
 section{
@@ -35,9 +52,7 @@ section{
   align-items:center;
 }
 
-h1,h2{
-  margin-bottom:25px;
-}
+h1,h2{ margin-bottom:25px; }
 
 .grid{
   display:grid;
@@ -50,27 +65,23 @@ h1,h2{
 .card{
   padding:20px;
   border-radius:20px;
-  backdrop-filter: var(--blur);
-  background: var(--glass);
+  backdrop-filter:var(--blur);
+  background:var(--glass);
   border:1px solid rgba(255,255,255,0.2);
   font-weight:bold;
-  font-size:16px;
   transition:0.3s;
   cursor:pointer;
 }
 
-.card:active{
-  transform:scale(0.95);
-}
+.card:hover{ transform:translateY(-5px); }
+.card:active{ transform:scale(0.95); }
 
 .firm-bim{ background:linear-gradient(135deg,#00c853,#64dd17); }
 .firm-file{ background:linear-gradient(135deg,#2962ff,#00b0ff); }
 .firm-metro{ background:linear-gradient(135deg,#ff6d00,#ff9100); }
 .firm-knorr{ background:linear-gradient(135deg,#d50000,#ff1744); }
 
-.product{
-  font-size:14px;
-}
+.product{ font-size:14px; }
 
 input{
   width:90%;
@@ -96,34 +107,40 @@ button{
   transition:0.3s;
 }
 
-button:active{
-  transform:scale(0.95);
-}
+button:hover{ transform:translateY(-3px); }
+button:active{ transform:scale(0.95); }
 
 .result{
   margin-top:30px;
-  font-size:32px;
+  font-size:22px;
   font-weight:bold;
-  animation:blink 1s infinite;
-}
-
-@keyframes blink{
-  50%{ opacity:0.3; }
+  animation:fadeIn 0.6s ease forwards;
 }
 
 .fadeIn{
-  animation:fade 0.8s ease forwards;
+  animation:fadeIn 0.6s ease forwards;
 }
 
-@keyframes fade{
+@keyframes fadeIn{
   from{opacity:0; transform:translateY(20px);}
   to{opacity:1; transform:translateY(0);}
+}
+
+.topBtn{
+  position:fixed;
+  top:20px;
+  left:50%;
+  transform:translateX(-50%);
+  display:none;
+  z-index:999;
 }
 
 </style>
 </head>
 
 <body>
+
+<button class="topBtn" id="resetBtn" onclick="resetApp()">🔄 Yeni Stok Sorgula</button>
 
 <section id="firms">
 <h1>🏢 Firma Seçiniz</h1>
@@ -160,17 +177,16 @@ let selectedFirm=null;
 let selectedProduct=null;
 
 function speak(text){
+  speechSynthesis.cancel();
   let msg=new SpeechSynthesisUtterance(text);
   msg.lang="tr-TR";
+  msg.rate=1;
   speechSynthesis.speak(msg);
-}
-
-function vibrate(){
-  if(navigator.vibrate) navigator.vibrate(200);
 }
 
 function selectFirm(firm){
   selectedFirm=firm;
+  speak(firm+" firması seçildi.");
   const container=document.getElementById("products");
   container.innerHTML="";
   document.getElementById("productTitle").innerText="📦 "+firm+" Ürünleri";
@@ -178,37 +194,48 @@ function selectFirm(firm){
     container.innerHTML+=`<div class="card product fadeIn" onclick="selectProduct('${p}')">✨ ${p}</div>`;
   }
   document.getElementById("productsSection").scrollIntoView({behavior:"smooth"});
-  vibrate();
 }
 
 function selectProduct(product){
   selectedProduct=product;
+  speak(product+" hammaddesi seçildi.");
   document.getElementById("stockTitle").innerText="📊 "+product+" Stok Giriniz";
   document.getElementById("stockSection").scrollIntoView({behavior:"smooth"});
-  vibrate();
 }
 
 function calculate(){
-  let current=parseFloat(document.getElementById("stockInput").value);
+  let current=parseFloat(document.getElementById("stockInput").value)||0;
   let min=data[selectedFirm][selectedProduct];
   let diff=min-current;
 
+  const result=document.getElementById("result");
+
   if(diff<=0){
-    document.getElementById("result").innerText="✅ STOK YETERLİ";
+    result.innerHTML="✅ Stok yeterli.";
     speak("Stok yeterli.");
-    vibrate();
+    document.getElementById("resetBtn").style.display="block";
     return;
   }
 
   let ton=Math.ceil(diff/1000);
-  let msg=" "+ton+" TON SİPARİŞ VERMELİSİN!";
-  document.getElementById("result").innerText=msg;
-  speak(ton+" ton sipariş vermelisin.");
-  vibrate();
+  result.innerHTML=
+  "📉 İhtiyaç: "+diff+" KG<br><br>🚛 "+ton+" TON SİPARİŞ VERMELİSİN!";
+  speak(diff+" kilogram ihtiyaç var. "+ton+" ton sipariş vermelisin.");
+  document.getElementById("resetBtn").style.display="block";
+}
+
+function resetApp(){
+  selectedFirm=null;
+  selectedProduct=null;
+  document.getElementById("products").innerHTML="";
+  document.getElementById("result").innerHTML="";
+  document.getElementById("stockInput").value="";
+  document.getElementById("resetBtn").style.display="none";
+  speak("Yeni stok sorgulama başlatıldı.");
+  window.scrollTo({top:0,behavior:"smooth"});
 }
 
 </script>
 
 </body>
 </html>
-
