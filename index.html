@@ -3,10 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Mobil Stok Asistanı</title>
+<title>Mobil Stok Asistanı - Sinema Modu</title>
 
 <style>
-
 :root{
   --glass: rgba(255,255,255,0.12);
   --blur: blur(18px);
@@ -23,9 +22,9 @@ body{
   color:white;
   overflow-x:hidden;
   scroll-behavior:smooth;
+  background:black;
 }
 
-/* GALAKSİ CANVAS */
 canvas{
   position:fixed;
   top:0;
@@ -33,7 +32,6 @@ canvas{
   width:100%;
   height:100%;
   z-index:-1;
-  background:radial-gradient(ellipse at bottom,#0d1b2a 0%,#000 100%);
 }
 
 section{
@@ -45,8 +43,6 @@ section{
   justify-content:center;
   align-items:center;
 }
-
-h1,h2{ margin-bottom:25px; }
 
 .grid{
   display:grid;
@@ -69,11 +65,6 @@ h1,h2{ margin-bottom:25px; }
 
 .card:hover{ transform:translateY(-5px); }
 .card:active{ transform:scale(0.95); }
-
-.firm-bim{ background:linear-gradient(135deg,#00c853,#64dd17); }
-.firm-file{ background:linear-gradient(135deg,#2962ff,#00b0ff); }
-.firm-metro{ background:linear-gradient(135deg,#ff6d00,#ff9100); }
-.firm-knorr{ background:linear-gradient(135deg,#d50000,#ff1744); }
 
 input{
   width:90%;
@@ -116,7 +107,6 @@ button:active{ transform:scale(0.95); }
   display:none;
   z-index:999;
 }
-
 </style>
 </head>
 
@@ -129,10 +119,10 @@ button:active{ transform:scale(0.95); }
 <section id="firms">
 <h1>🏢 Firma Seçiniz</h1>
 <div class="grid">
-<div class="card firm-bim" onclick="selectFirm('BİM')">🟢 BİM</div>
-<div class="card firm-file" onclick="selectFirm('FİLE')">🔵 FİLE</div>
-<div class="card firm-metro" onclick="selectFirm('METRO')">🟠 METRO</div>
-<div class="card firm-knorr" onclick="selectFirm('KNORR')">🔴 KNORR</div>
+<div class="card" onclick="selectFirm('BİM')">🟢 BİM</div>
+<div class="card" onclick="selectFirm('FİLE')">🔵 FİLE</div>
+<div class="card" onclick="selectFirm('METRO')">🟠 METRO</div>
+<div class="card" onclick="selectFirm('KNORR')">🔴 KNORR</div>
 </div>
 </section>
 
@@ -150,7 +140,7 @@ button:active{ transform:scale(0.95); }
 
 <script>
 
-/* VERİ */
+/* ==================== VERİ ==================== */
 const data={
 "BİM":{"KİMYON":20000,"HİNDİSTAN CEVİZİ":30000,"NANE":10000,"SUSAM":25000,"TARÇIN":10000,"ÇÖREKOTU":15000,"PUL BİBER":80000,"KARABİBER":30000,"ACI TOZ BİBER":15000,"TATLI TOZ BİBER":15000,"KEKİK":15000,"GALETA UNU":150000,"MISIR UNU":150000},
 "FİLE":{"KARABİBER":3000,"TARÇIN":3000,"ZERDEÇAL":3000,"KEKİK":5000,"İSOT":10000},
@@ -161,7 +151,7 @@ const data={
 let selectedFirm=null;
 let selectedProduct=null;
 
-/* SES */
+/* ==================== SES ==================== */
 function speak(text){
   speechSynthesis.cancel();
   let msg=new SpeechSynthesisUtterance(text);
@@ -169,12 +159,11 @@ function speak(text){
   speechSynthesis.speak(msg);
 }
 
-/* FORMAT */
 function formatNumber(num){
   return num.toLocaleString("tr-TR");
 }
 
-/* FİRMA */
+/* ==================== FİRMA & ÜRÜN ==================== */
 function selectFirm(firm){
   selectedFirm=firm;
   speak(firm+" firması seçildi.");
@@ -187,17 +176,16 @@ function selectFirm(firm){
   document.getElementById("productsSection").scrollIntoView({behavior:"smooth"});
 }
 
-/* ÜRÜN */
 function selectProduct(product){
   selectedProduct=product;
   speak(product+" hammaddesi seçildi.");
   document.getElementById("stockTitle").innerText="📊 "+product+" Stok Giriniz";
   document.getElementById("stockSection").scrollIntoView({behavior:"smooth"});
+  triggerSpiceEffect(product);
 }
 
-/* HESAP */
+/* ==================== HESAP ==================== */
 function calculate(){
-
   let current=parseFloat(document.getElementById("stockInput").value)||0;
   let min=data[selectedFirm][selectedProduct];
   let diff=min-current;
@@ -206,37 +194,32 @@ function calculate(){
   if(diff===0){
     result.innerHTML="✅ Stok tam yeterli.";
     speak("Stok tam yeterli.");
+    pulseGalaxy("blue");
   }
   else if(diff<0){
     let fazla=Math.abs(diff);
     result.innerHTML="🟢 "+formatNumber(fazla)+" kilogram fazla.";
     speak(formatNumber(fazla)+" kilogram fazla.");
+    pulseGalaxy("blue");
   }
   else{
     let eksik=diff;
     let ton=Math.ceil(eksik/1000);
 
-    let siparisMetni="";
-    let sesMetni="";
-
     if(eksik<1000){
-      siparisMetni=eksik+" kilogram sipariş vermelisin.";
-      sesMetni=eksik+" kilogram sipariş vermelisin.";
+      result.innerHTML="🔴 "+formatNumber(eksik)+" kilogram eksik.<br><br>🚛 "+eksik+" kilogram sipariş vermelisin.";
+      speak(formatNumber(eksik)+" kilogram eksik. "+eksik+" kilogram sipariş vermelisin.");
     }else{
-      siparisMetni=ton+" ton sipariş vermelisin.";
-      sesMetni=ton+" ton sipariş vermelisin.";
+      result.innerHTML="🔴 "+formatNumber(eksik)+" kilogram eksik.<br><br>🚛 "+ton+" ton sipariş vermelisin.";
+      speak(formatNumber(eksik)+" kilogram eksik. "+ton+" ton sipariş vermelisin.");
     }
-
-    result.innerHTML=
-      "🔴 "+formatNumber(eksik)+" kilogram eksik.<br><br>🚛 "+siparisMetni;
-
-    speak(formatNumber(eksik)+" kilogram eksik. "+sesMetni);
+    pulseGalaxy("red");
   }
 
   document.getElementById("resetBtn").style.display="block";
 }
 
-/* RESET */
+/* ==================== RESET ==================== */
 function resetApp(){
   selectedFirm=null;
   selectedProduct=null;
@@ -244,14 +227,18 @@ function resetApp(){
   document.getElementById("result").innerHTML="";
   document.getElementById("stockInput").value="";
   document.getElementById("resetBtn").style.display="none";
-  speak("Yeni stok sorgulama başlatıldı.");
   window.scrollTo({top:0,behavior:"smooth"});
+  speak("Yeni stok sorgulama başlatıldı.");
 }
 
-/* GALAKSİ */
+/* ==================== SİNEMA GALAKSİ ==================== */
 const canvas=document.getElementById("galaxy");
 const ctx=canvas.getContext("2d");
-let stars=[],shootingStars=[],w,h;
+let w,h;
+let stars=[];
+let meteors=[];
+let spiceParticles=[];
+let galaxyPulse=null;
 
 function resize(){
   w=canvas.width=window.innerWidth;
@@ -260,47 +247,110 @@ function resize(){
 window.addEventListener("resize",resize);
 resize();
 
-for(let i=0;i<200;i++){
+/* Yıldız Katmanları */
+for(let i=0;i<300;i++){
   stars.push({
     x:Math.random()*w,
     y:Math.random()*h,
-    size:Math.random()*1.5,
-    speed:Math.random()*0.3+0.05
+    z:Math.random()*2,
+    size:Math.random()*2
   });
 }
 
-function draw(){
+/* Spiral Galaksi Merkezi */
+function drawGalaxyCore(){
+  let gradient=ctx.createRadialGradient(w/2,h/2,10,w/2,h/2,300);
+  gradient.addColorStop(0,"rgba(255,255,255,0.6)");
+  gradient.addColorStop(0.3,"rgba(100,150,255,0.2)");
+  gradient.addColorStop(1,"transparent");
+  ctx.fillStyle=gradient;
+  ctx.beginPath();
+  ctx.arc(w/2,h/2,300,0,Math.PI*2);
+  ctx.fill();
+}
+
+/* Ana Çizim Döngüsü */
+function animate(){
   ctx.clearRect(0,0,w,h);
 
-  ctx.fillStyle="white";
+  drawGalaxyCore();
+
   stars.forEach(s=>{
-    ctx.globalAlpha=Math.random();
+    ctx.globalAlpha=0.8;
+    ctx.fillStyle="white";
     ctx.beginPath();
     ctx.arc(s.x,s.y,s.size,0,Math.PI*2);
     ctx.fill();
-    s.y+=s.speed;
-    if(s.y>h){ s.y=0; s.x=Math.random()*w; }
+    s.y+=0.2+s.z*0.3;
+    if(s.y>h) s.y=0;
   });
 
-  shootingStars.forEach((s,i)=>{
+  meteors.forEach((m,i)=>{
     ctx.strokeStyle="white";
     ctx.beginPath();
-    ctx.moveTo(s.x,s.y);
-    ctx.lineTo(s.x-50,s.y+10);
+    ctx.moveTo(m.x,m.y);
+    ctx.lineTo(m.x-80,m.y+20);
     ctx.stroke();
-    s.x+=6; s.y-=2; s.life--;
-    if(s.life<=0) shootingStars.splice(i,1);
+    m.x+=8; m.y-=3; m.life--;
+    if(m.life<=0) meteors.splice(i,1);
   });
 
-  requestAnimationFrame(draw);
-}
-draw();
+  spiceParticles.forEach((p,i)=>{
+    ctx.fillStyle=p.color;
+    ctx.beginPath();
+    ctx.arc(p.x,p.y,3,0,Math.PI*2);
+    ctx.fill();
+    p.y+=p.speed;
+    p.life--;
+    if(p.life<=0) spiceParticles.splice(i,1);
+  });
 
-document.addEventListener("click",(e)=>{
-  shootingStars.push({x:e.clientX,y:e.clientY,life:30});
+  if(galaxyPulse){
+    ctx.fillStyle=galaxyPulse;
+    ctx.globalAlpha=0.08;
+    ctx.fillRect(0,0,w,h);
+  }
+
+  requestAnimationFrame(animate);
+}
+animate();
+
+/* Meteor Rastgele */
+setInterval(()=>{
+  meteors.push({x:Math.random()*w,y:h,life:40});
+},4000);
+
+/* Tıklama Yıldızı */
+document.addEventListener("click",e=>{
+  meteors.push({x:e.clientX,y:e.clientY,life:25});
 });
 
-</script>
+/* Ürün 3D Efekt */
+function triggerSpiceEffect(product){
+  let color="white";
+  if(product.includes("BİBER")) color="red";
+  else if(product.includes("NANE")) color="lime";
+  else if(product.includes("ZERDEÇAL")) color="gold";
+  else if(product.includes("KARABİBER")) color="gray";
 
+  for(let i=0;i<80;i++){
+    spiceParticles.push({
+      x:Math.random()*w,
+      y:-10,
+      speed:Math.random()*2+1,
+      life:120,
+      color:color
+    });
+  }
+}
+
+/* Galaxy Pulse */
+function pulseGalaxy(type){
+  if(type==="red") galaxyPulse="red";
+  else galaxyPulse="blue";
+  setTimeout(()=>{ galaxyPulse=null; },800);
+}
+
+</script>
 </body>
 </html>
