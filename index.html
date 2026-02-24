@@ -3,17 +3,27 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Profesyonel Stok Asistanı</title>
+<title>Kurumsal Stok Asistanı</title>
+
 <style>
 body{
 margin:0;
 font-family:-apple-system,BlinkMacSystemFont,Segoe UI;
-background:linear-gradient(135deg,#0f172a,#1e293b);
+background:linear-gradient(135deg,#0f172a,#1e293b,#0f172a);
+background-size:400% 400%;
+animation:bgMove 15s ease infinite;
 color:white;
 text-align:center
 }
+@keyframes bgMove{
+0%{background-position:0% 50%}
+50%{background-position:100% 50%}
+100%{background-position:0% 50%}
+}
 h1{margin-top:20px}
-.container{max-width:1100px;margin:auto;padding:20px}
+
+.container{max-width:1200px;margin:auto;padding:20px}
+
 .card{
 background:rgba(255,255,255,0.05);
 backdrop-filter:blur(15px);
@@ -22,55 +32,79 @@ padding:20px;
 margin-top:20px;
 box-shadow:0 0 40px rgba(0,0,0,0.4)
 }
+
 button{
-padding:15px;
-margin:10px;
+padding:14px 22px;
+margin:8px;
 border:none;
 border-radius:12px;
-background:#2563eb;
+background:linear-gradient(90deg,#2563eb,#3b82f6);
 color:white;
-font-size:16px;
-min-width:140px
+font-size:15px;
+cursor:pointer;
+transition:.3s
 }
-button:hover{background:#1d4ed8}
-#productList{
-max-height:250px;
-overflow:auto;
-text-align:left;
-margin-top:15px;
-font-size:14px
+button:hover{transform:scale(1.05)}
+
+.grid{
+display:grid;
+grid-template-columns:repeat(auto-fill,minmax(180px,1fr));
+gap:15px;
+margin-top:20px
 }
+
+.productCard{
+padding:18px;
+border-radius:16px;
+background:linear-gradient(145deg,#1e293b,#0f172a);
+box-shadow:0 0 20px rgba(0,0,0,0.5);
+cursor:pointer;
+transition:.3s;
+font-weight:600;
+letter-spacing:.5px
+}
+.productCard:hover{
+transform:translateY(-6px);
+box-shadow:0 0 25px #2563eb
+}
+
+.selected{
+outline:2px solid #3b82f6;
+box-shadow:0 0 25px #3b82f6
+}
+
 #result{
 font-size:42px;
 font-weight:800;
-margin-top:20px
+margin-top:25px
 }
-.red{color:#ef4444}
-.green{color:#22c55e}
+.red{color:#ef4444;text-shadow:0 0 25px #ef4444}
+.green{color:#22c55e;text-shadow:0 0 25px #22c55e}
 .blink{animation:blink 1s infinite}
-@keyframes blink{0%{opacity:1}50%{opacity:.3}100%{opacity:1}}
+@keyframes blink{0%{opacity:1}50%{opacity:.4}100%{opacity:1}}
+
 .hidden{display:none}
 </style>
 </head>
+
 <body>
 
-<h1>🎙️ Kurumsal Stok Asistanı</h1>
+<h1>🎙️ Kurumsal Stok Yönetim Paneli</h1>
 
 <div class="container">
 
-<div class="card" id="firmaSecim">
-<p><b>Hangi firma ile işlem yapmak istiyorsunuz?</b></p>
+<div class="card">
+<p><b>Firma Seçiniz</b></p>
 <button onclick="selectFirma('BIM')">BİM</button>
 <button onclick="selectFirma('FILE')">FİLE</button>
 <button onclick="selectFirma('METRO')">METRO</button>
 <button onclick="selectFirma('KNORR')">KNORR</button>
 </div>
 
-<div class="card hidden" id="islemPanel">
+<div class="card hidden" id="urunPanel">
 <h3 id="firmaBaslik"></h3>
-<div id="productList"></div>
-<button onclick="askProduct()">Soru Sor</button>
-<button onclick="startListening()" id="cevapBtn" class="hidden">Cevap Ver</button>
+<div class="grid" id="urunGrid"></div>
+<button onclick="askStock()" id="stokBtn" class="hidden">Stok Miktarı Gir</button>
 </div>
 
 <div class="card">
@@ -83,7 +117,6 @@ margin-top:20px
 
 let currentFirma=null
 let currentUrun=null
-let state="idle"
 
 const data=[
 
@@ -102,7 +135,7 @@ const data=[
 {firma:"BIM",urun:"GALETA UNU",min:150000},
 {firma:"BIM",urun:"MISIR UNU",min:150000},
 
-// FİLE
+// FILE
 {firma:"FILE",urun:"KARABIBER",min:3000},
 {firma:"FILE",urun:"TARCIN",min:3000},
 {firma:"FILE",urun:"ZERDECAL",min:3000},
@@ -110,117 +143,57 @@ const data=[
 {firma:"FILE",urun:"ISOT",min:10000},
 
 // METRO
-{firma:"METRO",urun:"TATLI TOZ BIBER",min:1000},
-{firma:"METRO",urun:"CILEKLI PUDING",min:2000},
-{firma:"METRO",urun:"COREK OTU",min:1000},
-{firma:"METRO",urun:"HINDISTAN CEVIZI",min:2000},
-{firma:"METRO",urun:"ISOT",min:1500},
-{firma:"METRO",urun:"KAKAOLU PUDING",min:5000},
 {firma:"METRO",urun:"KARABIBER",min:5000},
-{firma:"METRO",urun:"KARANFIL",min:250},
-{firma:"METRO",urun:"KEKIK",min:2500},
-{firma:"METRO",urun:"KIMYON",min:3000},
-{firma:"METRO",urun:"KORI",min:1000},
-{firma:"METRO",urun:"KUS UZUMU",min:1000},
-{firma:"METRO",urun:"LIMON TUZU",min:3000},
-{firma:"METRO",urun:"MAVI HASHAS",min:500},
-{firma:"METRO",urun:"MUZLU PUDING",min:2000},
-{firma:"METRO",urun:"NANE",min:3000},
-{firma:"METRO",urun:"PANKO (3004)",min:15000},
 {firma:"METRO",urun:"PUL BIBER",min:20000},
-{firma:"METRO",urun:"TOZ SARIMSAK",min:1000},
-{firma:"METRO",urun:"SUMAK",min:3000},
-{firma:"METRO",urun:"SUSAM",min:2000},
-{firma:"METRO",urun:"TANE KARABIBER",min:500},
-{firma:"METRO",urun:"TARCIN",min:300},
-{firma:"METRO",urun:"TEMPURA UNU",min:500},
-{firma:"METRO",urun:"VANILYALI PUDING",min:1000},
-{firma:"METRO",urun:"YENIBAHAR",min:250},
-{firma:"METRO",urun:"TOZ ZERDECAL",min:500},
+{firma:"METRO",urun:"KIMYON",min:3000},
+{firma:"METRO",urun:"ZENCEFIL",min:2000},
 
 // KNORR
-{firma:"KNORR",urun:"HINDISTAN CEVIZI",min:2000},
 {firma:"KNORR",urun:"KARABIBER",min:5000},
+{firma:"KNORR",urun:"PUL BIBER",min:5000},
 {firma:"KNORR",urun:"KEKIK",min:2500},
 {firma:"KNORR",urun:"KIMYON",min:3000},
-{firma:"KNORR",urun:"NANE",min:2000},
-{firma:"KNORR",urun:"KNORR PANKO (3002)",min:5000},
-{firma:"KNORR",urun:"KNORR PUL BIBER",min:5000},
-{firma:"KNORR",urun:"TATLI TOZ BIBER",min:5000},
-{firma:"KNORR",urun:"ZENCEFIL",min:2000},
-{firma:"KNORR",urun:"ZERDECAL",min:3000}
+{firma:"KNORR",urun:"ZENCEFIL",min:2000}
+
 ]
-
-function normalize(t){
-return t.toUpperCase()
-.replace(/İ/g,"I")
-.replace(/Ş/g,"S")
-.replace(/Ğ/g,"G")
-.replace(/Ü/g,"U")
-.replace(/Ö/g,"O")
-.replace(/Ç/g,"C")
-.replace(/[^A-Z0-9 ]/g,"")
-}
-
-function speak(t){
-speechSynthesis.cancel()
-let u=new SpeechSynthesisUtterance(t)
-u.lang="tr-TR"
-speechSynthesis.speak(u)
-}
 
 function selectFirma(f){
 currentFirma=f
-document.getElementById("islemPanel").classList.remove("hidden")
-document.getElementById("firmaBaslik").innerText="Seçilen Firma: "+f
-listProducts()
-speak(f+" firması seçildi. Ürün listesini inceleyebilirsiniz.")
+currentUrun=null
+document.getElementById("urunPanel").classList.remove("hidden")
+document.getElementById("firmaBaslik").innerText=f+" Ürünleri"
+renderProducts()
 }
 
-function listProducts(){
+function renderProducts(){
+let grid=document.getElementById("urunGrid")
+grid.innerHTML=""
 let list=data.filter(d=>d.firma===currentFirma)
-let html="<b>Bu firmaya ait ürünler:</b><br>"
+
 list.forEach(p=>{
-html+=p.urun+" (Min: "+p.min+" kg)<br>"
+let div=document.createElement("div")
+div.className="productCard"
+div.innerText=p.urun
+div.onclick=function(){
+document.querySelectorAll(".productCard").forEach(c=>c.classList.remove("selected"))
+div.classList.add("selected")
+currentUrun=p.urun
+document.getElementById("stokBtn").classList.remove("hidden")
+}
+grid.appendChild(div)
 })
-document.getElementById("productList").innerHTML=html
 }
 
-function askProduct(){
-state="urun"
-document.getElementById("cevapBtn").classList.remove("hidden")
-speak("Hangi hammaddeyi sormak istiyorsunuz?")
-}
+function askStock(){
+let value=prompt("Depodaki stok miktarı nedir? (kg veya ton yazabilirsiniz)")
+if(!value)return
 
-function startListening(){
-const SR=window.SpeechRecognition||window.webkitSpeechRecognition
-if(!SR){alert("Tarayıcı desteklemiyor");return}
-let r=new SR()
-r.lang="tr-TR"
-r.start()
-r.onresult=e=>{
-process(e.results[0][0].transcript)
-}
-}
+let kg=parseQuantity(value)
+if(kg==null)return alert("Miktar anlaşılmadı")
 
-function process(text){
-let n=normalize(text)
-
-if(state==="urun"){
-let clean=n.replace(/\s+/g,"")
-let match=data.find(d=>d.firma===currentFirma && clean.includes(d.urun.replace(/\s+/g,"")))
-if(!match){speak("Hammadde bulunamadı.");return}
-currentUrun=match.urun
-state="stok"
-speak(currentUrun+" için depodaki stok miktarı nedir?")
-return
-}
-
-if(state==="stok"){
-let kg=parseQuantity(n)
-if(kg==null){speak("Miktar anlaşılamadı.");return}
 let rec=data.find(d=>d.firma===currentFirma && d.urun===currentUrun)
 let min=rec.min
+
 let result=document.getElementById("result")
 
 if(kg<min){
@@ -234,15 +207,13 @@ result.className="green"
 result.innerHTML="STOK YETERLİ"
 speak("Stok yeterli")
 }
-state="idle"
-}
 }
 
 function parseQuantity(text){
 let num=text.match(/(\d+(\.\d+)?)/)
 if(!num)return null
 let val=parseFloat(num[0])
-if(text.includes("TON"))return val*1000
+if(text.toUpperCase().includes("TON"))return val*1000
 return val
 }
 
@@ -258,6 +229,14 @@ if(ton%1===0.5)return Math.floor(ton)+" buçuk ton"
 return Math.round(ton*1000)+" kilogram"
 }
 
+function speak(t){
+speechSynthesis.cancel()
+let u=new SpeechSynthesisUtterance(t)
+u.lang="tr-TR"
+speechSynthesis.speak(u)
+}
+
 </script>
+
 </body>
 </html>
