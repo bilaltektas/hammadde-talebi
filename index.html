@@ -1,185 +1,178 @@
-<!DOCTYPE html><html lang="tr"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Ultra Stok Asistan Final</title><style>
-body{margin:0;font-family:-apple-system,BlinkMacSystemFont,Segoe UI;background:linear-gradient(135deg,#0f172a,#1e293b);color:white;text-align:center}
-h1{margin-top:20px;font-size:22px}
-.container{width:95%;max-width:700px;margin:auto}
-.card{background:rgba(255,255,255,0.05);backdrop-filter:blur(12px);border-radius:16px;padding:20px;margin-top:20px;box-shadow:0 0 25px rgba(0,0,0,0.4)}
-button{width:100%;padding:16px;margin-top:10px;border-radius:12px;border:none;font-size:16px;background:#2563eb;color:white}
-#log{height:220px;overflow:auto;text-align:left;font-size:14px}
-#result{font-size:34px;font-weight:bold;margin-top:20px}
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ultra Stok Yönetim Asistanı</title>
+<style>
+body{margin:0;background:linear-gradient(135deg,#0f172a,#1e293b);font-family:-apple-system,BlinkMacSystemFont,Segoe UI;color:#fff;text-align:center}
+h1{margin-top:20px}
+.container{max-width:900px;margin:auto;padding:15px}
+.card{background:rgba(255,255,255,0.05);backdrop-filter:blur(12px);padding:20px;border-radius:20px;margin-top:20px;box-shadow:0 0 40px rgba(0,0,0,0.4)}
+button{width:100%;padding:15px;margin-top:10px;border:none;border-radius:12px;background:#2563eb;color:white;font-size:16px}
+#log{height:180px;overflow:auto;text-align:left;font-size:14px;margin-top:10px}
+#result{font-size:40px;font-weight:bold;margin-top:20px}
 .blink{animation:blink 1s infinite}
-@keyframes blink{0%{opacity:1}50%{opacity:0.2}100%{opacity:1}}
+@keyframes blink{0%{opacity:1}50%{opacity:.3}100%{opacity:1}}
 .green{color:#22c55e}
 .orange{color:#f59e0b}
 .red{color:#ef4444}
-</style></head><body><h1>🎙️ Ultra Stok Asistan</h1><div class="container"><div class="card"><button onclick="initSystem()">Sistemi Başlat</button><button onclick="startListening()">Konuş</button><button onclick="resetFlow()">Başka Soru Sor</button><div id="log"></div></div><div class="card"><div id="result"></div></div></div><script>
+</style>
+</head>
+<body>
+
+<h1>🎙️ ULTRA STOK ASİSTANI</h1>
+<div class="container">
+
+<div class="card">
+<button onclick="initSystem()">Sistemi Başlat</button>
+<button onclick="startListening()">Konuş</button>
+<button onclick="resetFlow()">Başka Soru Sor</button>
+<div id="log"></div>
+</div>
+
+<div class="card">
+<div id="result"></div>
+</div>
+
+</div>
+
+<script>
 let state="idle"
 let currentFirma=null
 let currentUrun=null
-let voicesReady=false
 
 const firmaAlias={
-"BIM":"BIM","BIM MARKET":"BIM","BIMMM":"BIM","BIM":"BIM","BIM":"BIM","BIM":"BIM","BIM":"BIM",
-"BIM":"BIM","BIM":"BIM","BIM":"BIM",
-"BIM":"BIM","BIM":"BIM",
-"BIM":"BIM",
-"BIM":"BIM",
-"BIM":"BIM",
-"BIM":"BIM",
-"BIM":"BIM",
-"BIM":"BIM",
-"BIM":"BIM",
-"BIM":"BIM",
-"BIM":"BIM",
-"BIM":"BIM",
-"BIM":"BIM",
-"BIM":"BIM",
-"BIM":"BIM",
-"BIM":"BIM",
-"BIM":"BIM",
-"BIM":"BIM",
-"BIM":"BIM",
-"BIM":"BIM",
-"BIM":"BIM",
-"BIM":"BIM",
-"BIM":"BIM",
-"BIM":"BIM",
-"BIM":"BIM",
-"BIM":"BIM",
-"BIM":"BIM",
-"BIM":"BIM",
-"BIM":"BIM",
-"BIM":"BIM",
-"BIM":"BIM",
-"BIM":"BIM",
-"BIM":"BIM",
-"BIM":"BIM",
-"BIM":"BIM",
-"BIM":"BIM",
-"BIM":"BIM",
-"BIM":"BIM",
-"BIM":"BIM",
-"BIM":"BIM",
-"BIM":"BIM",
-"BIM":"BIM",
-"BIM":"BIM",
-"BIM":"BIM",
-"BIM":"BIM",
-"BIM":"BIM",
-"BIM":"BIM",
-"BIM":"BIM",
-"BIM":"BIM",
-"BIM":"BIM",
-"BIM":"BIM",
-"BIM":"BIM",
-"BIM":"BIM",
-"BIM":"BIM",
-"BIM":"BIM",
-"BIM":"BIM",
-"BIM":"BIM",
-"BIM":"BIM",
-"BIM":"BIM",
-"BIM":"BIM",
-"BIM":"BIM",
-"BIM":"BIM",
-"BIM":"BIM",
-"BIM":"BIM",
-"BIM":"BIM",
-"BIM":"BIM",
-"BIM":"BIM",
-"BIM":"BIM",
-"BIM":"BIM",
-"BIM":"BIM",
-"BIM":"BIM",
-"BIM":"BIM",
-"BIM":"BIM",
-"BIM":"BIM",
-"BIM":"BIM",
-"BIM":"BIM",
-"BIM":"BIM",
-"BIM":"BIM",
-"BIM":"BIM",
-"BIM":"BIM",
-"BIM":"BIM",
-"BIM":"BIM",
-"BIM":"BIM",
-"BIM":"BIM",
-"BIM":"BIM",
-"BIM":"BIM",
-"BIM":"BIM",
-"BIM":"BIM",
-"BIM":"BIM",
-"BIM":"BIM",
-"BIM":"BIM",
-"BIM":"BIM",
-"BIM":"BIM",
-"BIM":"BIM",
-"BIM":"BIM",
-"BIM":"BIM",
-"BIM":"BIM",
-"BIM":"BIM",
-"BIM":"BIM",
-"BIM":"BIM",
-"BIM":"BIM",
-"BIM":"BIM",
-"BIM":"BIM",
-"BIM":"BIM",
-"BIM":"BIM",
-"BIM":"BIM",
-"BIM":"BIM",
-"BIM":"BIM",
-"BIM":"BIM",
-"BIM":"BIM",
-"BIM":"BIM",
-"BIM":"BIM",
-"BIM":"BIM",
+"BIM":"BIM","BİM":"BIM",
 "FILE":"FILE","FİLE":"FILE",
 "METRO":"METRO",
-"KINOR":"KNORR","KINORR":"KNORR","KİNOR":"KNORR","KNORR":"KNORR"
+"KNORR":"KNORR","KINOR":"KNORR"
 }
 
-const data=[{firma:"BIM",urun:"KARABIBER",min:30000},{firma:"BIM",urun:"PUL BIBER",min:80000},{firma:"FILE",urun:"KARABIBER",min:3000},{firma:"METRO",urun:"KIMYON",min:3000},{firma:"KNORR",urun:"PUL BIBER",min:5000}]
+const data=[
+{firma:"BIM",urun:"KIMYON",min:20000},
+{firma:"BIM",urun:"HINDISTAN CEVIZI",min:30000},
+{firma:"BIM",urun:"NANE",min:10000},
+{firma:"BIM",urun:"SUSAM",min:25000},
+{firma:"BIM",urun:"TARCIN",min:10000},
+{firma:"BIM",urun:"COREKOTU",min:15000},
+{firma:"BIM",urun:"PUL BIBER",min:80000},
+{firma:"BIM",urun:"KARABIBER",min:30000},
+{firma:"BIM",urun:"ACI TOZ BIBER",min:15000},
+{firma:"BIM",urun:"TATLI TOZ BIBER",min:15000},
+{firma:"BIM",urun:"KEKIK",min:15000},
+{firma:"BIM",urun:"GALETA UNU",min:150000},
+{firma:"BIM",urun:"MISIR UNU",min:150000},
 
-const numberWords={"BIR":1,"IKI":2,"UC":3,"DORT":4,"BES":5,"ALTI":6,"YEDI":7,"SEKIZ":8,"DOKUZ":9,"ON":10}
+{firma:"FILE",urun:"KARABIBER",min:3000},
+{firma:"FILE",urun:"TARCIN",min:3000},
+{firma:"FILE",urun:"ZERDECAL",min:3000},
+{firma:"FILE",urun:"KEKIK",min:5000},
+{firma:"FILE",urun:"ISOT",min:10000},
+
+{firma:"METRO",urun:"TATLI TOZ BIBER",min:1000},
+{firma:"METRO",urun:"CILEKLI PUDING",min:2000},
+{firma:"METRO",urun:"COREK OTU",min:1000},
+{firma:"METRO",urun:"HINDISTAN CEVIZI",min:2000},
+{firma:"METRO",urun:"ISOT",min:1500},
+{firma:"METRO",urun:"KAKAOLU PUDING",min:5000},
+{firma:"METRO",urun:"KARABIBER",min:5000},
+{firma:"METRO",urun:"KARANFIL",min:250},
+{firma:"METRO",urun:"KEKIK",min:2500},
+{firma:"METRO",urun:"KIMYON",min:3000},
+{firma:"METRO",urun:"KORI",min:1000},
+{firma:"METRO",urun:"KUS UZUMU",min:1000},
+{firma:"METRO",urun:"LIMON TUZU",min:3000},
+{firma:"METRO",urun:"MAVI HASHAS",min:500},
+{firma:"METRO",urun:"MUZLU PUDING",min:2000},
+{firma:"METRO",urun:"NANE",min:3000},
+{firma:"METRO",urun:"PANKO (3004)",min:15000},
+{firma:"METRO",urun:"PUL BIBER",min:20000},
+{firma:"METRO",urun:"TOZ SARIMSAK",min:1000},
+{firma:"METRO",urun:"SUMAK",min:3000},
+{firma:"METRO",urun:"SUSAM",min:2000},
+{firma:"METRO",urun:"TANE KARABIBER",min:500},
+{firma:"METRO",urun:"TARCIN",min:300},
+{firma:"METRO",urun:"TEMPURA UNU",min:500},
+{firma:"METRO",urun:"VANILYALI PUDING",min:1000},
+{firma:"METRO",urun:"YENIBAHAR",min:250},
+{firma:"METRO",urun:"TOZ ZERDECAL",min:500},
+
+{firma:"KNORR",urun:"HINDISTAN CEVIZI",min:2000},
+{firma:"KNORR",urun:"KARABIBER",min:5000},
+{firma:"KNORR",urun:"KEKIK",min:2500},
+{firma:"KNORR",urun:"KIMYON",min:3000},
+{firma:"KNORR",urun:"NANE",min:2000},
+{firma:"KNORR",urun:"KNORR PANKO (3002)",min:5000},
+{firma:"KNORR",urun:"KNORR PUL BIBER",min:5000},
+{firma:"KNORR",urun:"TATLI TOZ BIBER",min:5000},
+{firma:"KNORR",urun:"ZENCEFIL",min:2000},
+{firma:"KNORR",urun:"ZERDECAL",min:3000}
+]
 
 function normalize(t){return t.toUpperCase().replace(/İ/g,"I").replace(/Ş/g,"S").replace(/Ğ/g,"G").replace(/Ü/g,"U").replace(/Ö/g,"O").replace(/Ç/g,"C")}
-function speak(t){if(!voicesReady)return;speechSynthesis.cancel();let u=new SpeechSynthesisUtterance(t);u.lang="tr-TR";speechSynthesis.speak(u)}
+function speak(t){speechSynthesis.cancel();let u=new SpeechSynthesisUtterance(t);u.lang="tr-TR";speechSynthesis.speak(u)}
 function log(t){document.getElementById("log").innerHTML+="<div>"+t+"</div>"}
 
-function initSystem(){speechSynthesis.getVoices();voicesReady=true;state="firma";speak("Merhaba. Hangi firma?")}
+function initSystem(){state="firma";speak("Merhaba. Hangi firma?")}
 
 function resetFlow(){state="firma";currentFirma=null;currentUrun=null;document.getElementById("result").innerHTML="";speak("Hangi firma?")}
 
-function startListening(){const SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR){alert("Destek yok");return}let r=new SR();r.lang="tr-TR";r.start();r.onresult=e=>{let text=e.results[0][0].transcript;log("👤 "+text);process(text)}}
+function startListening(){
+const SR=window.SpeechRecognition||window.webkitSpeechRecognition
+if(!SR){alert("Tarayıcı desteklemiyor");return}
+let r=new SR()
+r.lang="tr-TR"
+r.start()
+r.onresult=e=>{
+let text=e.results[0][0].transcript
+log("👤 "+text)
+process(text)
+}
+}
 
 function process(text){
 let n=normalize(text)
 
 if(state==="firma"){
-for(let key in firmaAlias){if(n.includes(normalize(key))){currentFirma=firmaAlias[key];state="urun";speak("Hangi hammadde?");return}}
-speak("Firmayı anlayamadım");return}
+for(let k in firmaAlias){
+if(n.includes(normalize(k))){
+currentFirma=firmaAlias[k]
+state="urun"
+speak("Hangi hammadde?")
+return
+}}
+speak("Firmayı anlayamadım")
+return
+}
 
 if(state==="urun"){
-let u=data.find(d=>d.firma===currentFirma&&n.includes(d.urun))
-if(!u){speak("Hammaddeyi anlayamadım");return}
-currentUrun=u.urun;state="stok";speak("Depoda kaç kilogram var?");return}
+let clean=n.replace(/\s+/g,"")
+let match=data.find(d=>d.firma===currentFirma && clean.includes(d.urun.replace(/\s+/g,"")))
+if(!match){speak("Hammaddeyi anlayamadım");return}
+currentUrun=match.urun
+state="stok"
+speak("Depoda kaç kilogram var?")
+return
+}
 
 if(state==="stok"){
 let kg=parseQuantity(n)
 if(kg==null){speak("Miktarı anlayamadım");return}
-let rec=data.find(d=>d.firma===currentFirma&&d.urun===currentUrun)
+let rec=data.find(d=>d.firma===currentFirma && d.urun===currentUrun)
 let min=rec.min
 let result=document.getElementById("result")
+
 if(kg<min){
 let need=min-kg
-let ton=(need/1000).toFixed(2)
+let ton=need/1000
 result.className="blink red"
-result.innerHTML=ton+" TON SİPARİŞ"
-}else if(kg<min*1.2){
-result.className="blink orange"
-result.innerHTML="RİSKLİ SEVİYE"
+result.innerHTML=ton.toFixed(2)+" TON SİPARİŞ"
+speak(formatSpeechTon(ton)+" sipariş vermelisin")
 }else{
 result.className="green"
 result.innerHTML="STOK YETERLİ"
+speak("Stok yeterli")
 }
 state="idle"
 }
@@ -187,7 +180,8 @@ state="idle"
 
 function parseQuantity(text){
 if(text.includes("BUCUK")){
-for(let w in numberWords){if(text.includes(w)){return (numberWords[w]+0.5)*1000}}
+let num=text.match(/(\d+)/)
+if(num)return(parseInt(num[0])+0.5)*1000
 }
 let num=text.match(/(\d+(\.\d+)?)/)
 if(num){
@@ -195,12 +189,17 @@ let val=parseFloat(num[0])
 if(text.includes("TON"))return val*1000
 return val
 }
-for(let w in numberWords){
-if(text.includes(w)){
-let val=numberWords[w]
-if(text.includes("TON"))return val*1000
-return val
-}}
 return null
 }
-</script></body></html>
+
+function formatSpeechTon(ton){
+let int=Math.floor(ton)
+let dec=ton-int
+if(dec===0.5)return int+" buçuk ton"
+if(dec===0)return int+" ton"
+return Math.round(ton*1000)+" kilogram"
+}
+</script>
+
+</body>
+</html>
