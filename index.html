@@ -3,43 +3,125 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AI Stok Asistanı Premium</title>
+<title>AI Stok Asistanı Ultimate</title>
 <style>
 body{margin:0;font-family:Arial;background:#0f172a;color:white;text-align:center;padding:15px}
 h2{margin-top:10px}
 button{font-size:20px;padding:18px;border-radius:14px;border:none;background:#22c55e;color:white;width:95%;max-width:500px;margin-top:15px}
 #response{margin-top:20px;background:#1e293b;padding:20px;border-radius:12px;min-height:100px;font-size:18px}
-.footer{margin-top:20px;font-size:12px;color:#94a3b8}
+#debug{margin-top:10px;font-size:12px;color:#94a3b8}
 </style>
 </head>
 <body>
-<h2>🤖 AI Stok Asistanı Premium</h2>
-<button onclick="startListening()">Konuşmaya Başla</button>
-<div id="response">Hazırım. Konuşabilirsiniz.</div>
-<div class="footer">Mobil uyumlu • Sesli yanıt • Hafızalı sistem</div>
+<h2>🤖 AI Stok Asistanı Ultimate</h2>
+<button onclick="startListening()">Konuş</button>
+<div id="response">Hazırım...</div>
+<div id="debug"></div>
 <script>
 const stockData={
-"BIM":{"KIMYON":20000,"HINDISTAN CEVIZI":30000,"NANE":10000,"SUSAM":25000,"TARCIN":10000,"COREKOTU":15000,"PUL BIBER":80000,"KARABIBER":30000,"ACI TOZ BIBER":15000,"TATLI TOZ BIBER":15000,"KEKIK":15000,"GALETA UNU":150000,"MISIR UNU":150000},
-"FILE":{"KARABIBER":3000,"TARCIN":3000,"ZERDECAL":3000,"KEKIK":5000,"ISOT":10000},
-"METRO":{"TATLI TOZ BIBER":1000,"CILEKLI PUDING":2000,"COREKOTU":1000,"HINDISTAN CEVIZI":2000,"ISOT":1500,"KAKAOLU PUDING":5000,"KARABIBER":5000,"KARANFIL":250,"KEKIK":2500,"KIMYON":3000,"KORI":1000,"KUS UZUMU":1000,"LIMON TUZU":3000,"MAVI HASHAS":500,"MUZLU PUDING":2000,"NANE":3000,"PANKO":15000,"PUL BIBER":20000,"TOZ SARIMSAK":1000,"SUMAK":3000,"SUSAM":2000,"TANE KARABIBER":500,"TARCIN":300,"TEMPURA UNU":500,"VANILYALI PUDING":1000,"YENIBAHAR":250,"ZERDECAL":500},
-"KNORR":{"COREKOTU":2000,"HINDISTAN CEVIZI":2000,"KARABIBER":5000,"KARANFIL":500,"KEKIK":2500,"KIMYON":3000,"KORI":2000,"NANE":2000,"PANKO":5000,"PUL BIBER":5000,"TARCIN":2000,"TATLI TOZ BIBER":5000,"ZENCEFIL":2000,"ZERDECAL":3000}
+"BIM":{"KARABIBER":30000,"KEKIK":15000,"PUL BIBER":80000},
+"METRO":{"KEKIK":2500,"PUL BIBER":20000},
+"KNORR":{"PUL BIBER":5000,"KARABIBER":5000}
 };
 let memory={firm:null,product:null,lastStock:null};
-function normalize(t){return t.toUpperCase().replace(/Ç/g,"C").replace(/Ğ/g,"G").replace(/İ/g,"I").replace(/Ş/g,"S").replace(/Ö/g,"O").replace(/Ü/g,"U").replace(/[^A-Z0-9. ]/g,"")}
-function speak(text){document.getElementById("response").innerText=text;const synth=window.speechSynthesis;const utter=new SpeechSynthesisUtterance(text);utter.lang="tr-TR";function load(){let voices=synth.getVoices();if(voices.length>0){utter.voice=voices.find(v=>v.lang==="tr-TR")||voices[0];synth.speak(utter)}}if(synth.getVoices().length>0){load()}else{synth.onvoiceschanged=load}}
-function getRisk(min,stock){let r=stock/min;if(r<0.5)return"kritik seviyede";if(r<0.8)return"riskli seviyede";if(r<1)return"sinirda";return"guvenli seviyede"}
-function findFirm(text){let found=null;Object.keys(stockData).forEach(f=>{if(text.includes(f))found=f});return found}
-function findProduct(text,firm){let found=null;if(!firm)return null;Object.keys(stockData[firm]).forEach(p=>{if(text.includes(p))found=p});return found}
-function startListening(){const rec=new(window.SpeechRecognition||window.webkitSpeechRecognition)();rec.lang="tr-TR";rec.start();rec.onresult=function(e){processCommand(e.results[0][0].transcript)}}
-function processCommand(raw){let text=normalize(raw);let firm=findFirm(text);if(firm)memory.firm=firm;let product=findProduct(text,memory.firm);if(product)memory.product=product;if(text.includes("MERHABA")){speak("Merhaba. Hangi firma ve urun icin islem yapmak istiyorsunuz?");return}
-if(text.includes("TESSEKKUR")){speak("Rica ederim. Baska bir stok kontrol edelim mi?");return}
-if(!memory.firm||!memory.product){speak("Firma ve urun belirtir misiniz?");return}
+function normalize(t){
+return t.toUpperCase()
+.replace(/Ç/g,"C").replace(/Ğ/g,"G").replace(/İ/g,"I")
+.replace(/Ş/g,"S").replace(/Ö/g,"O").replace(/Ü/g,"U")
+.replace(/,/g,".").replace(/[^A-Z0-9. ]/g,"")
+}
+function speak(text){
+document.getElementById("response").innerText=text;
+const synth=window.speechSynthesis;
+const utter=new SpeechSynthesisUtterance(text);
+utter.lang="tr-TR";
+utter.rate=1;
+function loadVoices(){
+let voices=synth.getVoices();
+if(voices.length>0){
+utter.voice=voices.find(v=>v.lang==="tr-TR")||voices[0];
+synth.speak(utter);
+}}
+if(synth.getVoices().length>0){loadVoices();}
+else{synth.onvoiceschanged=loadVoices;}
+}
+function getRisk(min,stock){
+let r=stock/min;
+if(r<0.5)return"kritik seviyede";
+if(r<0.8)return"riskli seviyede";
+if(r<1)return"sinirda";
+return"guvenli seviyede";
+}
+function detectFirm(text){
+for(let f in stockData){
+if(text.includes(f)) return f;
+}
+return null;
+}
+function detectProduct(text,firm){
+if(!firm) return null;
+for(let p in stockData[firm]){
+let words=p.split(" ");
+let matchCount=0;
+words.forEach(w=>{ if(text.includes(w)) matchCount++; });
+if(matchCount>=words.length-1) return p;
+}
+return null;
+}
+function startListening(){
+if(!('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)){
+alert("Tarayıcı ses tanımayı desteklemiyor.");
+return;
+}
+const rec=new(window.SpeechRecognition||window.webkitSpeechRecognition)();
+rec.lang="tr-TR";
+rec.start();
+rec.onresult=function(e){
+let raw=e.results[0][0].transcript;
+document.getElementById("debug").innerText="Algılanan: "+raw;
+processCommand(raw);
+}
+}
+function processCommand(raw){
+let text=normalize(raw);
+let firm=detectFirm(text);
+if(firm) memory.firm=firm;
+let product=detectProduct(text,memory.firm);
+if(product) memory.product=product;
+if(!memory.firm||!memory.product){
+speak("Firma ve urun belirtir misiniz?");
+return;
+}
 let minimum=stockData[memory.firm][memory.product];
-if(text.includes("MINIMUM")||text.includes("KAPASITE")){speak(memory.firm+" "+memory.product+" minimum kapasitesi "+(minimum/1000)+" ton.");return}
-let matchTon=text.match(/(\d+(\.\d+)?)\s*TON/);let matchKg=text.match(/(\d+(\.\d+)?)\s*KG/);let stock=0;if(matchTon){stock=parseFloat(matchTon[1])*1000}if(matchKg){stock=parseFloat(matchKg[1])}
-if(stock>0){memory.lastStock=stock;let risk=getRisk(minimum,stock);if(stock<minimum){let eksik=((minimum-stock)/1000).toFixed(2);speak("Minimum "+(minimum/1000)+" ton. Mevcut "+(stock/1000)+" ton. Sistem bunu "+risk+" olarak degerlendiriyor. "+eksik+" ton siparis oneriyorum.")}else{speak("Minimum "+(minimum/1000)+" ton. Mevcut "+(stock/1000)+" ton. Stok "+risk+". Siparis gerekmiyor.")}return}
-if(text.includes("DURUM")||text.includes("RISK")||text.includes("AZ")){if(memory.lastStock){let risk=getRisk(minimum,memory.lastStock);speak("Son bildirilen stok miktarina gore durum "+risk+".")}else{speak("Stok miktari belirtmediniz.")}return}
-speak("Komutu tam anlayamadim ama yardim etmeye hazirim.")}
+if(text.includes("MINIMUM")||text.includes("KAPASITE")){
+speak(memory.firm+" "+memory.product+" minimum kapasitesi "+(minimum/1000)+" ton.");
+return;
+}
+let matchTon=text.match(/(\d+(\.\d+)?)\s*TON/);
+let stock=0;
+if(matchTon){stock=parseFloat(matchTon[1])*1000;}
+if(stock>0){
+memory.lastStock=stock;
+let risk=getRisk(minimum,stock);
+if(stock<minimum){
+let eksik=((minimum-stock)/1000).toFixed(2);
+speak("Minimum "+(minimum/1000)+" ton. Mevcut "+(stock/1000)+" ton. Durum "+risk+". "+eksik+" ton siparis oneriyorum.");
+}else{
+speak("Minimum "+(minimum/1000)+" ton. Mevcut "+(stock/1000)+" ton. Stok "+risk+". Siparis gerekmiyor.");
+}
+return;
+}
+if(text.includes("DURUM")||text.includes("AZ")||text.includes("RISK")){
+if(memory.lastStock){
+let risk=getRisk(minimum,memory.lastStock);
+speak("Son bildirilen stok miktarina gore durum "+risk+".");
+}else{
+speak("Stok miktari belirtmediniz.");
+}
+return;
+}
+speak("Komutu anlayamadim. Lutfen stok miktari veya minimum sorgusu yapin.");
+}
 </script>
 </body>
 </html>
