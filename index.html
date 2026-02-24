@@ -1,76 +1,48 @@
-<!DOCTYPE html><html lang="tr"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Stok Sesli Asistan</title><style>body{margin:0;font-family:-apple-system,BlinkMacSystemFont,Segoe UI;background:#0f172a;color:white;text-align:center}h1{margin-top:20px}button{width:90%;max-width:400px;padding:18px;margin:10px;border-radius:12px;border:none;font-size:18px;background:#2563eb;color:white}#log{width:90%;max-width:600px;margin:20px auto;background:#1e293b;padding:15px;border-radius:12px;height:260px;overflow:auto;text-align:left;font-size:14px}</style></head><body><h1>🎙️ Stok Asistan</h1><button onclick="initAudio()">Sistemi Başlat</button><button onclick="startListening()">Konuş</button><div id="log"></div><script>
-let voicesLoaded=false
-let memory={lastFirma:null,lastUrun:null}
+<!DOCTYPE html><html lang="tr"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"><title>Ultra Stok Sesli Asistan</title><style>
+body{margin:0;font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto;background:linear-gradient(135deg,#0f172a,#1e293b);color:white;text-align:center}
+h1{margin-top:20px;font-size:22px;letter-spacing:1px}
+.container{width:95%;max-width:700px;margin:auto}
+.card{background:rgba(255,255,255,0.05);backdrop-filter:blur(10px);border-radius:16px;padding:20px;margin-top:20px;box-shadow:0 0 20px rgba(0,0,0,0.4)}
+button{width:100%;padding:16px;margin-top:10px;border-radius:12px;border:none;font-size:16px;background:#2563eb;color:white}
+#log{height:260px;overflow:auto;text-align:left;font-size:14px}
+.badge{padding:6px 12px;border-radius:20px;font-size:12px;display:inline-block;margin:4px}
+.ok{background:#16a34a}
+.warn{background:#f59e0b}
+.danger{background:#dc2626}
+select{width:100%;padding:12px;border-radius:10px;margin-top:10px;font-size:16px}
+</style></head><body><h1>🎙️ Ultra Stok Asistan</h1><div class="container"><div class="card"><button onclick="initSystem()">Sistemi Başlat</button><button onclick="startListening()">Konuş</button><div id="log"></div></div><div class="card"><div id="status"></div></div></div><script>
+let state="idle"
+let currentFirma=null
+let currentUrun=null
+let voicesReady=false
 
-const data=[{firma:"BIM",urun:"KARABIBER",min:30000},{firma:"KNORR",urun:"PUL BIBER",min:5000}]
+const data=[{firma:"BIM",urun:"KIMYON",min:20000},{firma:"BIM",urun:"HINDISTAN CEVIZI",min:30000},{firma:"BIM",urun:"NANE",min:10000},{firma:"BIM",urun:"SUSAM",min:25000},{firma:"BIM",urun:"TARCIN",min:10000},{firma:"BIM",urun:"COREKOTU",min:15000},{firma:"BIM",urun:"PUL BIBER",min:80000},{firma:"BIM",urun:"KARABIBER",min:30000},{firma:"BIM",urun:"ACI TOZ BIBER",min:15000},{firma:"BIM",urun:"TATLI TOZ BIBER",min:15000},{firma:"BIM",urun:"KEKIK",min:15000},{firma:"BIM",urun:"GALETA UNU",min:150000},{firma:"BIM",urun:"MISIR UNU",min:150000},
+{firma:"FILE",urun:"KARABIBER",min:3000},{firma:"FILE",urun:"TARCIN",min:3000},{firma:"FILE",urun:"ZERDECAL",min:3000},{firma:"FILE",urun:"KEKIK",min:5000},{firma:"FILE",urun:"ISOT",min:10000},
+{firma:"METRO",urun:"TATLI TOZ BIBER",min:1000},{firma:"METRO",urun:"CILEKLI PUDING",min:2000},{firma:"METRO",urun:"COREK OTU",min:1000},{firma:"METRO",urun:"HINDISTAN CEVIZI",min:2000},{firma:"METRO",urun:"ISOT",min:1500},{firma:"METRO",urun:"KAKAOLU PUDING",min:5000},{firma:"METRO",urun:"KARABIBER",min:5000},{firma:"METRO",urun:"KARANFIL",min:250},{firma:"METRO",urun:"KEKIK",min:2500},{firma:"METRO",urun:"KIMYON",min:3000},{firma:"METRO",urun:"KORI",min:1000},{firma:"METRO",urun:"KUS UZUMU",min:1000},{firma:"METRO",urun:"LIMON TUZU",min:3000},{firma:"METRO",urun:"MAVI HASHAS",min:500},{firma:"METRO",urun:"MUZLU PUDING",min:2000},{firma:"METRO",urun:"NANE",min:3000},{firma:"METRO",urun:"PANKO",min:15000},{firma:"METRO",urun:"PUL BIBER",min:20000},{firma:"METRO",urun:"TOZ SARIMSAK",min:1000},{firma:"METRO",urun:"SUMAK",min:3000},{firma:"METRO",urun:"SUSAM",min:2000},{firma:"METRO",urun:"TANE KARABIBER",min:500},{firma:"METRO",urun:"TARCIN",min:300},{firma:"METRO",urun:"TEMPURA UNU",min:500},{firma:"METRO",urun:"VANILYALI PUDING",min:1000},{firma:"METRO",urun:"YENIBAHAR",min:250},{firma:"METRO",urun:"TOZ ZERDECAL",min:500},
+{firma:"KNORR",urun:"HINDISTAN CEVIZI",min:2000},{firma:"KNORR",urun:"KARABIBER",min:5000},{firma:"KNORR",urun:"KEKIK",min:2500},{firma:"KNORR",urun:"PANKO",min:5000},{firma:"KNORR",urun:"KNORR PUL BIBER",min:5000},{firma:"KNORR",urun:"TATLI TOZ BIBER",min:5000},{firma:"KNORR",urun:"ZERDECAL",min:3000}]
 
+const numberWords={"SIFIR":0,"BIR":1,"IKI":2,"UC":3,"DORT":4,"BES":5,"ALTI":6,"YEDI":7,"SEKIZ":8,"DOKUZ":9,"ON":10}
 function normalize(t){return t.toUpperCase().replace(/İ/g,"I").replace(/Ş/g,"S").replace(/Ğ/g,"G").replace(/Ü/g,"U").replace(/Ö/g,"O").replace(/Ç/g,"C")}
-
-function initAudio(){
-speechSynthesis.getVoices()
-voicesLoaded=true
-speak("Ses sistemi hazır.")
-}
-
-function speak(text){
-if(!voicesLoaded){console.log("Voice not ready");return}
-speechSynthesis.cancel()
-let u=new SpeechSynthesisUtterance(text)
-u.lang="tr-TR"
-u.volume=1
-u.rate=1
-u.pitch=1
-speechSynthesis.speak(u)
-}
-
+function speak(text){if(!voicesReady)return;speechSynthesis.cancel();let u=new SpeechSynthesisUtterance(text);u.lang="tr-TR";speechSynthesis.speak(u)}
 function log(t){document.getElementById("log").innerHTML+="<div>"+t+"</div>";document.getElementById("log").scrollTop=99999}
 
-function findMatch(text){
-let n=normalize(text)
-let f=data.find(d=>n.includes(d.firma))
-let u=data.find(d=>n.includes(d.urun))
-if(f)memory.lastFirma=f.firma
-if(u)memory.lastUrun=u.urun
-if(!memory.lastFirma||!memory.lastUrun)return null
-return data.find(d=>d.firma===memory.lastFirma&&d.urun===memory.lastUrun)
-}
+function initSystem(){speechSynthesis.getVoices();voicesReady=true;state="firma";let firms=[...new Set(data.map(d=>d.firma))].join(", ");let msg="Merhaba. Hangi firma için işlem yapmak istiyorsun? "+firms;log("🤖 "+msg);speak(msg)}
 
-function extractNumber(text){
-let n=text.match(/(\d+)/)
-if(!n)return null
-let value=parseInt(n[0])
-if(text.includes("ton"))value*=1000
-return value
-}
-
-function startListening(){
-const SpeechRecognition=window.SpeechRecognition||window.webkitSpeechRecognition
-if(!SpeechRecognition){alert("Tarayıcı desteklemiyor");return}
-let recognition=new SpeechRecognition()
-recognition.lang="tr-TR"
-recognition.start()
-recognition.onresult=function(e){
-let text=e.results[0][0].transcript
-log("👤 "+text)
-process(text)
-}
-recognition.onerror=function(){speak("Seni anlayamadım")}
-}
+function startListening(){const SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR){alert("Tarayıcı desteklemiyor");return}let r=new SR();r.lang="tr-TR";r.start();r.onresult=e=>{let text=e.results[0][0].transcript;log("👤 "+text);process(text)}}
 
 function process(text){
-let match=findMatch(text)
-if(!match){speak("Ürünü anlayamadım");return}
-let stock=extractNumber(text)
-if(stock==null){speak("Stok miktarını söylemedin");return}
-let min=match.min
-let response=""
-if(stock<min){
-let need=min-stock
-response="Kritik stok. "+(need/1000).toFixed(2)+" ton sipariş vermelisin."
-}else{
-response="Stok yeterli."
+let n=normalize(text)
+if(state==="firma"){let f=data.find(d=>n.includes(d.firma));if(!f){speak("Firmayı anlayamadım");return}currentFirma=f.firma;state="urun";let msg=currentFirma+" için hangi hammadde?";log("🤖 "+msg);speak(msg);return}
+if(state==="urun"){let u=data.find(d=>d.firma===currentFirma&&n.includes(d.urun));if(!u){speak("Hammaddeyi anlayamadım");return}currentUrun=u.urun;state="stok";let msg=currentUrun+" için depoda kaç kilogram var?";log("🤖 "+msg);speak(msg);return}
+if(state==="stok"){let kg=parseQuantity(n);if(kg==null){speak("Miktarı anlayamadım");return}let rec=data.find(d=>d.firma===currentFirma&&d.urun===currentUrun);let min=rec.min;let resultDiv=document.getElementById("status");let cevap="";if(kg<min){let need=min-kg;cevap=formatTonKg(need)+" sipariş vermelisin.";resultDiv.innerHTML='<span class="badge danger">KRİTİK</span>'}else if(kg<min*1.2){cevap="Stok minimuma yakın.";resultDiv.innerHTML='<span class="badge warn">RİSKLİ</span>'}else{cevap="Stok yeterli.";resultDiv.innerHTML='<span class="badge ok">YETERLİ</span>'}log("🤖 "+cevap);speak(cevap);state="firma";setTimeout(()=>{let msg="Yeni işlem için hangi firma?";log("🤖 "+msg);speak(msg)},2000)}
 }
-log("🤖 "+response)
-setTimeout(()=>{speak(response)},300)
+
+function parseQuantity(text){
+if(text.includes("BUCUK")){let word=text.split(" ")[0];if(numberWords[word]!=undefined)return (numberWords[word]+0.5)*1000}
+let num=text.match(/(\d+(\.\d+)?)/);if(num){let val=parseFloat(num[0]);if(text.includes("TON"))return val*1000;return val}
+for(let w in numberWords){if(text.includes(w)){let val=numberWords[w];if(text.includes("TON"))return val*1000;return val}}
+return null
 }
+
+function formatTonKg(kg){let ton=(kg/1000);if(ton>=1)return ton.toFixed(2)+" ton yani "+kg+" kilogram";return kg+" kilogram"}
 </script></body></html>
