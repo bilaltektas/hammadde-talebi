@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sesli Stok Asistanı</title>
+<title>Profesyonel Sesli Stok Asistanı</title>
 
 <style>
 body{
@@ -14,151 +14,234 @@ body{
     padding:20px;
 }
 button{
-    font-size:22px;
-    padding:20px;
-    border-radius:15px;
+    font-size:20px;
+    padding:18px;
+    border-radius:14px;
     border:none;
     background:#22c55e;
     color:white;
     width:90%;
     max-width:400px;
-    margin-top:30px;
+    margin-top:25px;
 }
 #response{
-    margin-top:40px;
-    font-size:20px;
+    margin-top:30px;
+    font-size:18px;
     background:#1e293b;
     padding:20px;
-    border-radius:15px;
+    border-radius:14px;
+    min-height:80px;
 }
 </style>
 </head>
-
 <body>
 
-<h2>🎤 Sesli Stok Asistanı</h2>
-<p>Butona bas ve konuş</p>
-
-<button onclick="startListening()">Konuşmaya Başla</button>
-
-<div id="response">Cevap burada görünecek...</div>
+<h2>🎤 Profesyonel Sesli Stok Asistanı</h2>
+<button onclick="startListening()">Konuş</button>
+<div id="response">Hazırım...</div>
 
 <script>
 
-// =========================
-// GÖMÜLÜ STOK TABLOSU (KG)
-// =========================
+// ======================
+// TÜM TABLO (KG)
+// ======================
 const stockData = {
-  "BIM": {
-    "KARABIBER": 30000,
-    "KIMYON": 20000,
-    "PUL BIBER": 80000,
-    "KEKIK": 15000
-  },
-  "KNORR": {
-    "PUL BIBER": 5000,
-    "KARABIBER": 5000,
-    "KEKIK": 2500,
-    "ZERDECAL": 3000
-  },
-  "METRO": {
-    "KEKIK": 2500,
-    "PUL BIBER": 20000,
-    "KARABIBER": 5000
-  }
+
+"BIM":{
+"KIMYON":20000,
+"HINDISTAN CEVIZI":30000,
+"NANE":10000,
+"SUSAM":25000,
+"TARCIN":10000,
+"COREKOTU":15000,
+"PUL BIBER":80000,
+"KARABIBER":30000,
+"ACI TOZ BIBER":15000,
+"TATLI TOZ BIBER":15000,
+"KEKIK":15000,
+"GALETA UNU":150000,
+"MISIR UNU":150000
+},
+
+"FILE":{
+"KARABIBER":3000,
+"TARCIN":3000,
+"ZERDECAL":3000,
+"KEKIK":5000,
+"ISOT":10000
+},
+
+"METRO":{
+"TATLI TOZ BIBER":1000,
+"CILEKLI PUDING":2000,
+"COREKOTU":1000,
+"HINDISTAN CEVIZI":2000,
+"ISOT":1500,
+"KAKAOLU PUDING":5000,
+"KARABIBER":5000,
+"KARANFIL":250,
+"KEKIK":2500,
+"KIMYON":3000,
+"KORI":1000,
+"KUS UZUMU":1000,
+"LIMON TUZU":3000,
+"MAVI HASHAS":500,
+"MUZLU PUDING":2000,
+"NANE":3000,
+"PANKO":15000,
+"PUL BIBER":20000,
+"TOZ SARIMSAK":1000,
+"SUMAK":3000,
+"SUSAM":2000,
+"TANE KARABIBER":500,
+"TARCIN":300,
+"TEMPURA UNU":500,
+"VANILYALI PUDING":1000,
+"YENIBAHAR":250,
+"ZERDECAL":500
+},
+
+"KNORR":{
+"COREKOTU":2000,
+"HINDISTAN CEVIZI":2000,
+"KARABIBER":5000,
+"KARANFIL":500,
+"KEKIK":2500,
+"KIMYON":3000,
+"KORI":2000,
+"NANE":2000,
+"PANKO":5000,
+"PUL BIBER":5000,
+"TARCIN":2000,
+"TATLI TOZ BIBER":5000,
+"ZENCEFIL":2000,
+"ZERDECAL":3000
+}
+
 };
 
-// =========================
+// ======================
+// NORMALİZASYON
+// ======================
+function normalize(text){
+return text
+.toUpperCase()
+.replace(/Ç/g,"C")
+.replace(/Ğ/g,"G")
+.replace(/İ/g,"I")
+.replace(/Ş/g,"S")
+.replace(/Ö/g,"O")
+.replace(/Ü/g,"U")
+.replace(/[^A-Z0-9 ]/g,"")
+}
+
+// ======================
 // SES TANIMA
-// =========================
+// ======================
 function startListening(){
-    const recognition = new(window.SpeechRecognition || window.webkitSpeechRecognition)();
-    recognition.lang = "tr-TR";
-    recognition.start();
-
-    recognition.onresult = function(event){
-        let text = event.results[0][0].transcript.toUpperCase();
-        processCommand(text);
-    }
+const recognition = new(window.SpeechRecognition || window.webkitSpeechRecognition)();
+recognition.lang="tr-TR";
+recognition.start();
+recognition.onresult=function(event){
+let text = event.results[0][0].transcript;
+processCommand(text);
+}
 }
 
-// =========================
-// YANIT SESLENDİRME
-// =========================
+// ======================
+// SESLENDİRME
+// ======================
 function speak(text){
-    const speech = new SpeechSynthesisUtterance(text);
-    speech.lang = "tr-TR";
-    speechSynthesis.speak(speech);
+const speech = new SpeechSynthesisUtterance(text);
+speech.lang="tr-TR";
+speechSynthesis.speak(speech);
 }
 
-// =========================
-// KOMUT İŞLEME
-// =========================
-function processCommand(text){
+// ======================
+// KOMUT MOTORU
+// ======================
+function processCommand(rawText){
 
-    document.getElementById("response").innerText = "Algılanan: " + text;
+let text = normalize(rawText);
+document.getElementById("response").innerText="Algılanan: "+rawText;
 
-    let firm = null;
-    let product = null;
+if(text.includes("MERHABA")){
+let cevap="Merhaba. Hangi firma ve ürün için işlem yapmak istiyorsunuz?";
+speak(cevap);
+return;
+}
 
-    // Firma tespiti
-    if(text.includes("BIM")) firm="BIM";
-    if(text.includes("KNORR")) firm="KNORR";
-    if(text.includes("METRO")) firm="METRO";
+if(text.includes("TESSEKKUR")){
+let cevap="Rica ederim. Başka bir ürün kontrol etmek ister misiniz?";
+speak(cevap);
+return;
+}
 
-    if(!firm){
-        speak("Firma bulunamadı");
-        return;
-    }
+let firm=null;
+["BIM","FILE","METRO","KNORR"].forEach(f=>{
+if(text.includes(f)) firm=f;
+});
 
-    // Ürün eşleştirme
-    Object.keys(stockData[firm]).forEach(p=>{
-        if(text.includes(p)){
-            product = p;
-        }
-    });
+if(!firm){
+speak("Firma ismini anlayamadım.");
+return;
+}
 
-    if(!product){
-        speak("Ürün bulunamadı");
-        return;
-    }
+let product=null;
+Object.keys(stockData[firm]).forEach(p=>{
+if(text.includes(p)) product=p;
+});
 
-    let minimum = stockData[firm][product];
+if(!product){
+speak("Urunu anlayamadim.");
+return;
+}
 
-    // Minimum kapasite sorusu
-    if(text.includes("MINIMUM")){
-        let ton = minimum / 1000;
-        let answer = firm + " " + product + " minimum kapasitesi " + ton + " ton.";
-        document.getElementById("response").innerText = answer;
-        speak(answer);
-        return;
-    }
+let minimum=stockData[firm][product];
 
-    // Depomda X ton var sorgusu
-    let tonMatch = text.match(/(\d+)\s*TON/);
+// minimum sorgusu
+if(text.includes("MINIMUM") || text.includes("KAPASITE")){
+let ton=(minimum/1000);
+let cevap=firm+" "+product+" minimum kapasitesi "+ton+" ton.";
+document.getElementById("response").innerText=cevap;
+speak(cevap);
+return;
+}
 
-    if(tonMatch){
-        let mevcutTon = parseInt(tonMatch[1]);
-        let mevcutKg = mevcutTon * 1000;
+// stok hesaplama
+let tonMatch=text.match(/(\d+)\s*TON/);
+let kgMatch=text.match(/(\d+)\s*KG/);
 
-        if(mevcutKg >= minimum){
-            let answer = "Stok yeterli.";
-            document.getElementById("response").innerText = answer;
-            speak(answer);
-        }else{
-            let siparisKg = minimum - mevcutKg;
-            let siparisTon = siparisKg / 1000;
-            let answer = siparisTon + " ton sipariş vermelisiniz.";
-            document.getElementById("response").innerText = answer;
-            speak(answer);
-        }
-        return;
-    }
+let mevcutKg=0;
 
-    speak("Komut anlaşılamadı.");
+if(tonMatch){
+mevcutKg=parseInt(tonMatch[1])*1000;
+}
+else if(kgMatch){
+mevcutKg=parseInt(kgMatch[1]);
+}
+
+if(mevcutKg>0){
+
+if(mevcutKg>=minimum){
+let cevap="Stok yeterli. Siparis gerekmiyor.";
+document.getElementById("response").innerText=cevap;
+speak(cevap);
+}
+else{
+let siparisKg=minimum-mevcutKg;
+let siparisTon=(siparisKg/1000).toFixed(2);
+let cevap=siparisTon+" ton siparis vermelisiniz.";
+document.getElementById("response").innerText=cevap;
+speak(cevap);
+}
+return;
+}
+
+speak("Komutu tam anlayamadim. Minimum mu yoksa siparis hesabi mi yapmak istiyorsunuz?");
+
 }
 
 </script>
-
 </body>
 </html>
