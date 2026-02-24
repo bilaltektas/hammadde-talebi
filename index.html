@@ -3,32 +3,74 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ultra Stok Yönetim Asistanı</title>
+<title>Profesyonel Stok Asistanı</title>
 <style>
-body{margin:0;background:linear-gradient(135deg,#0f172a,#1e293b);font-family:-apple-system,BlinkMacSystemFont,Segoe UI;color:#fff;text-align:center}
+body{
+margin:0;
+font-family:-apple-system,BlinkMacSystemFont,Segoe UI;
+background:linear-gradient(135deg,#0f172a,#1e293b);
+color:white;
+text-align:center
+}
 h1{margin-top:20px}
-.container{max-width:900px;margin:auto;padding:15px}
-.card{background:rgba(255,255,255,0.05);backdrop-filter:blur(12px);padding:20px;border-radius:20px;margin-top:20px;box-shadow:0 0 40px rgba(0,0,0,0.4)}
-button{width:100%;padding:15px;margin-top:10px;border:none;border-radius:12px;background:#2563eb;color:white;font-size:16px}
-#log{height:180px;overflow:auto;text-align:left;font-size:14px;margin-top:10px}
-#result{font-size:40px;font-weight:bold;margin-top:20px}
+.container{max-width:1100px;margin:auto;padding:20px}
+.card{
+background:rgba(255,255,255,0.05);
+backdrop-filter:blur(15px);
+border-radius:20px;
+padding:20px;
+margin-top:20px;
+box-shadow:0 0 40px rgba(0,0,0,0.4)
+}
+button{
+padding:15px;
+margin:10px;
+border:none;
+border-radius:12px;
+background:#2563eb;
+color:white;
+font-size:16px;
+min-width:140px
+}
+button:hover{background:#1d4ed8}
+#productList{
+max-height:250px;
+overflow:auto;
+text-align:left;
+margin-top:15px;
+font-size:14px
+}
+#result{
+font-size:42px;
+font-weight:800;
+margin-top:20px
+}
+.red{color:#ef4444}
+.green{color:#22c55e}
 .blink{animation:blink 1s infinite}
 @keyframes blink{0%{opacity:1}50%{opacity:.3}100%{opacity:1}}
-.green{color:#22c55e}
-.orange{color:#f59e0b}
-.red{color:#ef4444}
+.hidden{display:none}
 </style>
 </head>
 <body>
 
-<h1>🎙️ ULTRA STOK ASİSTANI</h1>
+<h1>🎙️ Kurumsal Stok Asistanı</h1>
+
 <div class="container">
 
-<div class="card">
-<button onclick="initSystem()">Sistemi Başlat</button>
-<button onclick="startListening()">Konuş</button>
-<button onclick="resetFlow()">Başka Soru Sor</button>
-<div id="log"></div>
+<div class="card" id="firmaSecim">
+<p><b>Hangi firma ile işlem yapmak istiyorsunuz?</b></p>
+<button onclick="selectFirma('BIM')">BİM</button>
+<button onclick="selectFirma('FILE')">FİLE</button>
+<button onclick="selectFirma('METRO')">METRO</button>
+<button onclick="selectFirma('KNORR')">KNORR</button>
+</div>
+
+<div class="card hidden" id="islemPanel">
+<h3 id="firmaBaslik"></h3>
+<div id="productList"></div>
+<button onclick="askProduct()">Soru Sor</button>
+<button onclick="startListening()" id="cevapBtn" class="hidden">Cevap Ver</button>
 </div>
 
 <div class="card">
@@ -38,18 +80,14 @@ button{width:100%;padding:15px;margin-top:10px;border:none;border-radius:12px;ba
 </div>
 
 <script>
-let state="idle"
+
 let currentFirma=null
 let currentUrun=null
-
-const firmaAlias={
-"BIM":"BIM","BİM":"BIM",
-"FILE":"FILE","FİLE":"FILE",
-"METRO":"METRO",
-"KNORR":"KNORR","KINOR":"KNORR"
-}
+let state="idle"
 
 const data=[
+
+// BİM
 {firma:"BIM",urun:"KIMYON",min:20000},
 {firma:"BIM",urun:"HINDISTAN CEVIZI",min:30000},
 {firma:"BIM",urun:"NANE",min:10000},
@@ -64,12 +102,14 @@ const data=[
 {firma:"BIM",urun:"GALETA UNU",min:150000},
 {firma:"BIM",urun:"MISIR UNU",min:150000},
 
+// FİLE
 {firma:"FILE",urun:"KARABIBER",min:3000},
 {firma:"FILE",urun:"TARCIN",min:3000},
 {firma:"FILE",urun:"ZERDECAL",min:3000},
 {firma:"FILE",urun:"KEKIK",min:5000},
 {firma:"FILE",urun:"ISOT",min:10000},
 
+// METRO
 {firma:"METRO",urun:"TATLI TOZ BIBER",min:1000},
 {firma:"METRO",urun:"CILEKLI PUDING",min:2000},
 {firma:"METRO",urun:"COREK OTU",min:1000},
@@ -98,6 +138,7 @@ const data=[
 {firma:"METRO",urun:"YENIBAHAR",min:250},
 {firma:"METRO",urun:"TOZ ZERDECAL",min:500},
 
+// KNORR
 {firma:"KNORR",urun:"HINDISTAN CEVIZI",min:2000},
 {firma:"KNORR",urun:"KARABIBER",min:5000},
 {firma:"KNORR",urun:"KEKIK",min:2500},
@@ -110,13 +151,46 @@ const data=[
 {firma:"KNORR",urun:"ZERDECAL",min:3000}
 ]
 
-function normalize(t){return t.toUpperCase().replace(/İ/g,"I").replace(/Ş/g,"S").replace(/Ğ/g,"G").replace(/Ü/g,"U").replace(/Ö/g,"O").replace(/Ç/g,"C")}
-function speak(t){speechSynthesis.cancel();let u=new SpeechSynthesisUtterance(t);u.lang="tr-TR";speechSynthesis.speak(u)}
-function log(t){document.getElementById("log").innerHTML+="<div>"+t+"</div>"}
+function normalize(t){
+return t.toUpperCase()
+.replace(/İ/g,"I")
+.replace(/Ş/g,"S")
+.replace(/Ğ/g,"G")
+.replace(/Ü/g,"U")
+.replace(/Ö/g,"O")
+.replace(/Ç/g,"C")
+.replace(/[^A-Z0-9 ]/g,"")
+}
 
-function initSystem(){state="firma";speak("Merhaba. Hangi firma?")}
+function speak(t){
+speechSynthesis.cancel()
+let u=new SpeechSynthesisUtterance(t)
+u.lang="tr-TR"
+speechSynthesis.speak(u)
+}
 
-function resetFlow(){state="firma";currentFirma=null;currentUrun=null;document.getElementById("result").innerHTML="";speak("Hangi firma?")}
+function selectFirma(f){
+currentFirma=f
+document.getElementById("islemPanel").classList.remove("hidden")
+document.getElementById("firmaBaslik").innerText="Seçilen Firma: "+f
+listProducts()
+speak(f+" firması seçildi. Ürün listesini inceleyebilirsiniz.")
+}
+
+function listProducts(){
+let list=data.filter(d=>d.firma===currentFirma)
+let html="<b>Bu firmaya ait ürünler:</b><br>"
+list.forEach(p=>{
+html+=p.urun+" (Min: "+p.min+" kg)<br>"
+})
+document.getElementById("productList").innerHTML=html
+}
+
+function askProduct(){
+state="urun"
+document.getElementById("cevapBtn").classList.remove("hidden")
+speak("Hangi hammaddeyi sormak istiyorsunuz?")
+}
 
 function startListening(){
 const SR=window.SpeechRecognition||window.webkitSpeechRecognition
@@ -125,40 +199,26 @@ let r=new SR()
 r.lang="tr-TR"
 r.start()
 r.onresult=e=>{
-let text=e.results[0][0].transcript
-log("👤 "+text)
-process(text)
+process(e.results[0][0].transcript)
 }
 }
 
 function process(text){
 let n=normalize(text)
 
-if(state==="firma"){
-for(let k in firmaAlias){
-if(n.includes(normalize(k))){
-currentFirma=firmaAlias[k]
-state="urun"
-speak("Hangi hammadde?")
-return
-}}
-speak("Firmayı anlayamadım")
-return
-}
-
 if(state==="urun"){
 let clean=n.replace(/\s+/g,"")
 let match=data.find(d=>d.firma===currentFirma && clean.includes(d.urun.replace(/\s+/g,"")))
-if(!match){speak("Hammaddeyi anlayamadım");return}
+if(!match){speak("Hammadde bulunamadı.");return}
 currentUrun=match.urun
 state="stok"
-speak("Depoda kaç kilogram var?")
+speak(currentUrun+" için depodaki stok miktarı nedir?")
 return
 }
 
 if(state==="stok"){
 let kg=parseQuantity(n)
-if(kg==null){speak("Miktarı anlayamadım");return}
+if(kg==null){speak("Miktar anlaşılamadı.");return}
 let rec=data.find(d=>d.firma===currentFirma && d.urun===currentUrun)
 let min=rec.min
 let result=document.getElementById("result")
@@ -166,8 +226,8 @@ let result=document.getElementById("result")
 if(kg<min){
 let need=min-kg
 let ton=need/1000
-result.className="blink red"
-result.innerHTML=ton.toFixed(2)+" TON SİPARİŞ"
+result.className="red blink"
+result.innerHTML=formatDisplayTon(ton)+" SİPARİŞ VERMELİSİN"
 speak(formatSpeechTon(ton)+" sipariş vermelisin")
 }else{
 result.className="green"
@@ -179,27 +239,25 @@ state="idle"
 }
 
 function parseQuantity(text){
-if(text.includes("BUCUK")){
-let num=text.match(/(\d+)/)
-if(num)return(parseInt(num[0])+0.5)*1000
-}
 let num=text.match(/(\d+(\.\d+)?)/)
-if(num){
+if(!num)return null
 let val=parseFloat(num[0])
 if(text.includes("TON"))return val*1000
 return val
 }
-return null
+
+function formatDisplayTon(ton){
+if(ton%1===0)return ton+" TON"
+if(ton%1===0.5)return Math.floor(ton)+" BUÇUK TON"
+return ton.toFixed(1)+" TON"
 }
 
 function formatSpeechTon(ton){
-let int=Math.floor(ton)
-let dec=ton-int
-if(dec===0.5)return int+" buçuk ton"
-if(dec===0)return int+" ton"
+if(ton%1===0)return ton+" ton"
+if(ton%1===0.5)return Math.floor(ton)+" buçuk ton"
 return Math.round(ton*1000)+" kilogram"
 }
-</script>
 
+</script>
 </body>
 </html>
