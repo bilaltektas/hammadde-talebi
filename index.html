@@ -20,26 +20,20 @@
 body{
   margin:0;
   font-family:'Segoe UI',sans-serif;
-  background:linear-gradient(135deg,#141e30,#243b55);
   color:white;
   overflow-x:hidden;
   scroll-behavior:smooth;
 }
 
-/* Arkaplan canlı hareket */
-body::before{
-  content:"";
+/* GALAKSİ CANVAS */
+canvas{
   position:fixed;
-  width:200%;
-  height:200%;
-  background:radial-gradient(circle at 20% 30%,#00e5ff33,transparent),
-             radial-gradient(circle at 70% 60%,#ff174433,transparent);
-  animation:moveBg 12s infinite alternate linear;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
   z-index:-1;
-}
-@keyframes moveBg{
-  from{transform:translate(-10%,-10%)}
-  to{transform:translate(10%,10%)}
+  background:radial-gradient(ellipse at bottom,#0d1b2a 0%,#000 100%);
 }
 
 section{
@@ -81,8 +75,6 @@ h1,h2{ margin-bottom:25px; }
 .firm-metro{ background:linear-gradient(135deg,#ff6d00,#ff9100); }
 .firm-knorr{ background:linear-gradient(135deg,#d50000,#ff1744); }
 
-.product{ font-size:14px; }
-
 input{
   width:90%;
   max-width:300px;
@@ -114,16 +106,6 @@ button:active{ transform:scale(0.95); }
   margin-top:30px;
   font-size:22px;
   font-weight:bold;
-  animation:fadeIn 0.6s ease forwards;
-}
-
-.fadeIn{
-  animation:fadeIn 0.6s ease forwards;
-}
-
-@keyframes fadeIn{
-  from{opacity:0; transform:translateY(20px);}
-  to{opacity:1; transform:translateY(0);}
 }
 
 .topBtn{
@@ -139,6 +121,8 @@ button:active{ transform:scale(0.95); }
 </head>
 
 <body>
+
+<canvas id="galaxy"></canvas>
 
 <button class="topBtn" id="resetBtn" onclick="resetApp()">🔄 Yeni Stok Sorgula</button>
 
@@ -166,6 +150,7 @@ button:active{ transform:scale(0.95); }
 
 <script>
 
+/* VERİ */
 const data={
 "BİM":{"KİMYON":20000,"HİNDİSTAN CEVİZİ":30000,"NANE":10000,"SUSAM":25000,"TARÇIN":10000,"ÇÖREKOTU":15000,"PUL BİBER":80000,"KARABİBER":30000,"ACI TOZ BİBER":15000,"TATLI TOZ BİBER":15000,"KEKİK":15000,"GALETA UNU":150000,"MISIR UNU":150000},
 "FİLE":{"KARABİBER":3000,"TARÇIN":3000,"ZERDEÇAL":3000,"KEKİK":5000,"İSOT":10000},
@@ -176,14 +161,20 @@ const data={
 let selectedFirm=null;
 let selectedProduct=null;
 
+/* SES */
 function speak(text){
   speechSynthesis.cancel();
   let msg=new SpeechSynthesisUtterance(text);
   msg.lang="tr-TR";
-  msg.rate=1;
   speechSynthesis.speak(msg);
 }
 
+/* FORMAT */
+function formatNumber(num){
+  return num.toLocaleString("tr-TR");
+}
+
+/* FİRMA */
 function selectFirm(firm){
   selectedFirm=firm;
   speak(firm+" firması seçildi.");
@@ -191,11 +182,12 @@ function selectFirm(firm){
   container.innerHTML="";
   document.getElementById("productTitle").innerText="📦 "+firm+" Ürünleri";
   for(let p in data[firm]){
-    container.innerHTML+=`<div class="card product fadeIn" onclick="selectProduct('${p}')">✨ ${p}</div>`;
+    container.innerHTML+=`<div class="card" onclick="selectProduct('${p}')">✨ ${p}</div>`;
   }
   document.getElementById("productsSection").scrollIntoView({behavior:"smooth"});
 }
 
+/* ÜRÜN */
 function selectProduct(product){
   selectedProduct=product;
   speak(product+" hammaddesi seçildi.");
@@ -203,27 +195,48 @@ function selectProduct(product){
   document.getElementById("stockSection").scrollIntoView({behavior:"smooth"});
 }
 
+/* HESAP */
 function calculate(){
+
   let current=parseFloat(document.getElementById("stockInput").value)||0;
   let min=data[selectedFirm][selectedProduct];
   let diff=min-current;
-
   const result=document.getElementById("result");
 
-  if(diff<=0){
-    result.innerHTML="✅ Stok yeterli.";
-    speak("Stok yeterli.");
-    document.getElementById("resetBtn").style.display="block";
-    return;
+  if(diff===0){
+    result.innerHTML="✅ Stok tam yeterli.";
+    speak("Stok tam yeterli.");
+  }
+  else if(diff<0){
+    let fazla=Math.abs(diff);
+    result.innerHTML="🟢 "+formatNumber(fazla)+" kilogram fazla.";
+    speak(formatNumber(fazla)+" kilogram fazla.");
+  }
+  else{
+    let eksik=diff;
+    let ton=Math.ceil(eksik/1000);
+
+    let siparisMetni="";
+    let sesMetni="";
+
+    if(eksik<1000){
+      siparisMetni=eksik+" kilogram sipariş vermelisin.";
+      sesMetni=eksik+" kilogram sipariş vermelisin.";
+    }else{
+      siparisMetni=ton+" ton sipariş vermelisin.";
+      sesMetni=ton+" ton sipariş vermelisin.";
+    }
+
+    result.innerHTML=
+      "🔴 "+formatNumber(eksik)+" kilogram eksik.<br><br>🚛 "+siparisMetni;
+
+    speak(formatNumber(eksik)+" kilogram eksik. "+sesMetni);
   }
 
-  let ton=Math.ceil(diff/1000);
-  result.innerHTML=
-  "📉 İhtiyaç: "+diff+" KG<br><br>🚛 "+ton+" TON SİPARİŞ VERMELİSİN!";
-  speak(diff+" kilogram ihtiyaç var. "+ton+" ton sipariş vermelisin.");
   document.getElementById("resetBtn").style.display="block";
 }
 
+/* RESET */
 function resetApp(){
   selectedFirm=null;
   selectedProduct=null;
@@ -234,6 +247,58 @@ function resetApp(){
   speak("Yeni stok sorgulama başlatıldı.");
   window.scrollTo({top:0,behavior:"smooth"});
 }
+
+/* GALAKSİ */
+const canvas=document.getElementById("galaxy");
+const ctx=canvas.getContext("2d");
+let stars=[],shootingStars=[],w,h;
+
+function resize(){
+  w=canvas.width=window.innerWidth;
+  h=canvas.height=window.innerHeight;
+}
+window.addEventListener("resize",resize);
+resize();
+
+for(let i=0;i<200;i++){
+  stars.push({
+    x:Math.random()*w,
+    y:Math.random()*h,
+    size:Math.random()*1.5,
+    speed:Math.random()*0.3+0.05
+  });
+}
+
+function draw(){
+  ctx.clearRect(0,0,w,h);
+
+  ctx.fillStyle="white";
+  stars.forEach(s=>{
+    ctx.globalAlpha=Math.random();
+    ctx.beginPath();
+    ctx.arc(s.x,s.y,s.size,0,Math.PI*2);
+    ctx.fill();
+    s.y+=s.speed;
+    if(s.y>h){ s.y=0; s.x=Math.random()*w; }
+  });
+
+  shootingStars.forEach((s,i)=>{
+    ctx.strokeStyle="white";
+    ctx.beginPath();
+    ctx.moveTo(s.x,s.y);
+    ctx.lineTo(s.x-50,s.y+10);
+    ctx.stroke();
+    s.x+=6; s.y-=2; s.life--;
+    if(s.life<=0) shootingStars.splice(i,1);
+  });
+
+  requestAnimationFrame(draw);
+}
+draw();
+
+document.addEventListener("click",(e)=>{
+  shootingStars.push({x:e.clientX,y:e.clientY,life:30});
+});
 
 </script>
 
