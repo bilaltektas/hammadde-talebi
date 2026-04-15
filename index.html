@@ -10,6 +10,7 @@ body{
   margin:0;
   font-family:Arial;
   background:#f5f6fa;
+  height:100vh;
 }
 
 header{
@@ -20,7 +21,7 @@ header{
   font-weight:bold;
 }
 
-.screen{display:none;padding:12px;}
+.screen{display:none;height:calc(100vh - 50px);}
 .screen.active{display:block;}
 
 .fade{animation:fade .2s ease-in-out;}
@@ -34,6 +35,7 @@ header{
   display:grid;
   grid-template-columns:1fr;
   gap:12px;
+  padding:12px;
 }
 
 .btn{
@@ -62,6 +64,12 @@ header{
   padding:10px;
   border-radius:10px;
 }
+
+iframe, object{
+  width:100%;
+  height:100%;
+  border:0;
+}
 </style>
 </head>
 
@@ -72,21 +80,18 @@ header{
 <!-- ANA SAYFA -->
 <div id="home" class="screen active fade">
   <div class="menu">
-    <div class="btn" onclick="openMenu('HAMMADDE')">HAMMADDE</div>
+    <div class="btn" onclick="openMenu('HAMMADDE')">HAMMADDE (PDF)</div>
     <div class="btn" onclick="openMenu('MALKABUL')">MAL KABUL</div>
   </div>
 </div>
 
-<!-- HAMMADDE -->
+<!-- HAMMADDE PDF -->
 <div id="hammadde" class="screen fade">
   <div class="top">
     <button class="back" onclick="backHome()">←</button>
   </div>
   <iframe 
-    src="https://docs.google.com/spreadsheets/d/e/2PACX-1vTNqOxfs7HAd05KsWVVL14sgKoLnR3vRnRFxeF-9geymh2lMOvjZH-agNftjODzzDhXd3vaT-7sDTQC/pubhtml?gid=185627105&amp;single=true&amp;widget=true&amp;headers=false" 
-    width="100%" 
-    height="600" 
-    style="border:0">
+    src="https://docs.google.com/spreadsheets/d/e/2PACX-1vTNqOxfs7HAd05KsWVVL14sgKoLnR3vRnRFxeF-9geymh2lMOvjZH-agNftjODzzDhXd3vaT-7sDTQC/pub?gid=185627105&single=true&output=pdf">
   </iframe>
 </div>
 
