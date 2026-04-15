@@ -25,18 +25,18 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 1.5rem;
+      font-size: 1.3rem;
       font-weight: bold;
       color: #fff;
     }
     .menu-tile:hover {
       transform: scale(1.05);
-      box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+      box-shadow: 0 0 15px #0ff, 0 0 30px #0ff;
     }
     iframe {
       border: 10px solid #333;
       border-radius: 20px;
-      width: 100%;
+      width: 95%;
       height: 80vh;
       background: #fff;
     }
@@ -57,10 +57,21 @@
       margin: 0 10px;
       transition: transform 0.3s;
       font-size: 1.5rem;
+      color: #fff;
     }
     #topBar button:hover {
       transform: rotate(10deg) scale(1.2);
     }
+    #loading {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.7);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 100;
+    }
+    #loading.hidden { display: none; }
   </style>
 </head>
 <body class="dark-mode">
@@ -71,7 +82,10 @@
   </div>
 
   <!-- Ana Menü -->
-  <div id="mainMenu" class="animate__animated animate__fadeIn h-screen flex flex-col justify-center items-center gap-10">
+  <div id="mainMenu" class="animate__animated animate__fadeIn h-screen flex flex-col justify-center items-center gap-6">
+    <h1 class="text-2xl font-bold mb-4">Hoş geldin!</h1>
+    <p class="mb-4">Kullanma Talimatı: Menüden seçim yap, tabloyu incele, üstteki 🏠 ile geri dön.</p>
+    <input type="text" id="searchBox" placeholder="Ara..." onkeyup="filterTiles()" class="p-2 rounded-lg w-3/4 mb-4">
     <div class="grid grid-cols-2 gap-6 w-3/4">
       <div class="menu-tile h-40 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 animate__animated animate__pulse animate__infinite" onclick="showSubMenu('stok')">
         📦 Stok Miktarları
@@ -105,40 +119,19 @@
     <iframe id="sheetFrame"></iframe>
   </div>
 
+  <!-- Loading -->
+  <div id="loading" class="hidden">
+    <div class="animate-spin rounded-full h-32 w-32 border-t-4 border-b-4 border-purple-500"></div>
+  </div>
+
   <!-- JS -->
   <script>
-    function showSubMenu(menu){
-      navigator.vibrate?.(100); // titreşim
-      document.getElementById('mainMenu').classList.add('hidden');
-      if(menu === 'stok'){
-        document.getElementById('stokMenu').classList.remove('hidden');
-      } else {
-        document.getElementById('malMenu').classList.remove('hidden');
-      }
-    }
-    function openSheet(url){
-      navigator.vibrate?.([50, 100, 50]); // titreşim pattern
-      document.getElementById('stokMenu').classList.add('hidden');
-      document.getElementById('malMenu').classList.add('hidden');
-      document.getElementById('sheetView').classList.remove('hidden');
-      document.getElementById('sheetFrame').src = url;
-    }
-    function goHome(){
-      document.getElementById('stokMenu').classList.add('hidden');
-      document.getElementById('malMenu').classList.add('hidden');
-      document.getElementById('sheetView').classList.add('hidden');
-      document.getElementById('mainMenu').classList.remove('hidden');
-    }
-    function toggleMode(){
-      const body = document.body;
-      if(body.classList.contains('dark-mode')){
-        body.classList.remove('dark-mode');
-        body.classList.add('light-mode');
-      } else {
-        body.classList.remove('light-mode');
-        body.classList.add('dark-mode');
-      }
-    }
-  </script>
-</body>
-</html>
+    // Sesli karşılama
+    function greetUser(){
+      const hour = new Date().getHours();
+      let message = "Hoş geldiniz.";
+      if(hour < 12) message = "Günaydın, hoş geldiniz. Stok takibinizi kolayca yapabilirsiniz.";
+      else if(hour < 18) message = "Merhaba, hoş geldiniz. Bugün stok ve mal kabul ekranlarınız hazır.";
+      else message = "İyi akşamlar, hoş geldiniz. Günün son kontrolünü yapabilirsiniz.";
+      const utterance = new SpeechSynthesisUtterance(message);
+      utterance.lang = "tr-TR";
