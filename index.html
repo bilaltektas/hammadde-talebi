@@ -3,134 +3,147 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-
 <title>AI Stok Dashboard</title>
 
 <script src="https://cdn.tailwindcss.com"></script>
 
-<link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#0f172a">
-
 <style>
-  body {
-    margin: 0;
-    font-family: 'Segoe UI', sans-serif;
-    height: 100dvh;
-    overflow: hidden;
-    -webkit-tap-highlight-color: transparent;
-  }
+body {
+  margin: 0;
+  font-family: 'Segoe UI', sans-serif;
+  height: 100dvh;
+  overflow: hidden;
+  -webkit-tap-highlight-color: transparent;
+  background: #0f172a;
+  color: white;
+}
 
-  .dark-mode {
-    background: #0f172a;
-    color: white;
-  }
+#app {
+  height: 100dvh;
+  display: grid;
+  grid-template-rows: auto 1fr;
+}
 
-  #app {
-    height: 100dvh;
-    display: grid;
-    grid-template-rows: auto 1fr;
-  }
+/* TOP BAR */
+#topBar {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  display: flex;
+  justify-content: center;
+  padding: 12px 16px;
+  padding-top: calc(12px + env(safe-area-inset-top));
+  background: rgba(0,0,0,0.6);
+  backdrop-filter: blur(14px);
+}
 
-  #topBar {
-    position: sticky;
-    top: 0;
-    z-index: 50;
-    display: flex;
-    justify-content: space-between;
-    padding: 12px 16px;
-    padding-top: calc(12px + env(safe-area-inset-top));
-    background: rgba(0,0,0,0.6);
-    backdrop-filter: blur(14px);
-  }
+.homeBtn {
+  width: 56px;
+  height: 56px;
+  font-size: 26px;
+  border-radius: 50%;
+  background: linear-gradient(135deg,#4f46e5,#7c3aed);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
 
-  .hidden { display: none !important; }
+.homeBtn:active {
+  transform: scale(0.92);
+  box-shadow: 0 3px 10px rgba(0,0,0,0.4);
+}
 
-  #mainMenu {
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-  }
+.hidden { display: none !important; }
 
-  .menu-card {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.6rem;
-    font-weight: bold;
-    color: white;
-    transition: transform 0.2s;
-  }
+/* MAIN MENU */
+#mainMenu {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
 
-  .menu-card:active {
-    transform: scale(0.98);
-  }
+.menu-card {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.6rem;
+  font-weight: bold;
+  color: white;
+  transition: transform 0.2s;
+}
 
-  .stok { background: linear-gradient(135deg,#4f46e5,#7c3aed); }
-  .mal  { background: linear-gradient(135deg,#f97316,#ef4444); }
+.menu-card:active { transform: scale(0.98); }
 
-  .subMenu {
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-  }
+.stok { background: linear-gradient(135deg,#4f46e5,#7c3aed); }
+.mal { background: linear-gradient(135deg,#f97316,#ef4444); }
 
-  .subItem {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.4rem;
-    font-weight: bold;
-    color: white;
-  }
+/* SUB MENU */
+.subMenu {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
 
-  .hm  { background: linear-gradient(135deg,#6366f1,#4338ca); }
-  .opp { background: linear-gradient(135deg,#f97316,#dc2626); }
-  .omk { background: linear-gradient(135deg,#06b6d4,#2563eb); }
-  .pet { background: linear-gradient(135deg,#22c55e,#15803d); }
+.subItem {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+  font-weight: bold;
+  color: white;
+}
 
-  .mh1 { background: linear-gradient(135deg,#a855f7,#7c3aed); }
-  .mh2 { background: linear-gradient(135deg,#ec4899,#be185d); }
+/* COLORS */
+.hm { background: linear-gradient(135deg,#6366f1,#4338ca); }
+.opp { background: linear-gradient(135deg,#f97316,#dc2626); }
+.omk { background: linear-gradient(135deg,#06b6d4,#2563eb); }
+.pet { background: linear-gradient(135deg,#22c55e,#15803d); }
+.mh1 { background: linear-gradient(135deg,#a855f7,#7c3aed); }
+.mh2 { background: linear-gradient(135deg,#ec4899,#be185d); }
 
-  #sheetView {
-    height: 100%;
-    padding: 12px;
-    background: #0b1220;
-  }
+/* SHEET */
+#sheetView {
+  height: 100%;
+  padding: 12px;
+  background: #0b1220;
+}
 
-  .frameBox {
-    height: 100%;
-    border-radius: 18px;
-    overflow: hidden;
-    background: white;
-    box-shadow: 0 10px 40px rgba(0,0,0,0.5);
-  }
+.frameBox {
+  height: 100%;
+  border-radius: 18px;
+  overflow: hidden;
+  background: white;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+}
 
-  iframe {
-    width: 100%;
-    height: 100%;
-    border: none;
-  }
+iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+}
 
-  .floatingHint {
-    position: absolute;
-    bottom: 12px;
-    left: 50%;
-    transform: translateX(-50%);
-    font-size: 12px;
-    opacity: 0.5;
-  }
+.floatingHint {
+  position: absolute;
+  bottom: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 12px;
+  opacity: 0.5;
+}
 </style>
 </head>
 
-<body class="dark-mode">
+<body>
 
 <div id="app">
 
   <div id="topBar">
-    <button onclick="home()">🏠</button>
-    <button onclick="toggle()">🌙</button>
+    <button class="homeBtn" onclick="home()">🏠</button>
   </div>
 
   <div id="mainMenu">
@@ -139,15 +152,15 @@
   </div>
 
   <div id="stokMenu" class="hidden subMenu">
-    <div class="subItem hm" onclick="openSheet(urls.hm)">Hammadde</div>
-    <div class="subItem opp" onclick="openSheet(urls.opp)">OPP - BOBİN</div>
-    <div class="subItem omk" onclick="openSheet(urls.omk)">OMK - KOLİ</div>
-    <div class="subItem pet" onclick="openSheet(urls.pet)">PET - CAM - KAPAK</div>
+    <div class="subItem hm" onclick="openSheet(urls.hm,'Hammadde')">Hammadde</div>
+    <div class="subItem opp" onclick="openSheet(urls.opp,'OPP bobin')">OPP - BOBİN</div>
+    <div class="subItem omk" onclick="openSheet(urls.omk,'OMK koli')">OMK - KOLİ</div>
+    <div class="subItem pet" onclick="openSheet(urls.pet,'PET cam kapak')">PET - CAM - KAPAK</div>
   </div>
 
   <div id="malMenu" class="hidden subMenu">
-    <div class="subItem mh1" onclick="openSheet(urls.mh1)">Gelen Hammadde</div>
-    <div class="subItem mh2" onclick="openSheet(urls.mh2)">Yardımcı Malzeme</div>
+    <div class="subItem mh1" onclick="openSheet(urls.mh1,'Gelen hammadde')">Gelen Hammadde</div>
+    <div class="subItem mh2" onclick="openSheet(urls.mh2,'Yardımcı malzeme')">Yardımcı Malzeme</div>
   </div>
 
   <div id="sheetView" class="hidden">
@@ -160,7 +173,6 @@
 </div>
 
 <script>
-
 const urls = {
   hm: "https://docs.google.com/spreadsheets/d/e/2PACX-1vTNqOxfs7HAd05KsWVVL14sgKoLnR3vRnRFxeF-9geymh2lMOvjZH-agNftjODzzDhXd3vaT-7sDTQC/pubhtml?gid=185627105&single=true",
   opp: "https://docs.google.com/spreadsheets/d/e/2PACX-1vTNqOxfs7HAd05KsWVVL14sgKoLnR3vRnRFxeF-9geymh2lMOvjZH-agNftjODzzDhXd3vaT-7sDTQC/pubhtml?gid=326121089&single=true",
@@ -170,19 +182,24 @@ const urls = {
   mh2: "https://docs.google.com/spreadsheets/d/e/2PACX-1vTNqOxfs7HAd05KsWVVL14sgKoLnR3vRnRFxeF-9geymh2lMOvjZH-agNftjODzzDhXd3vaT-7sDTQC/pubhtml?gid=908017234&single=true"
 };
 
+/* MENÜ */
 function showSubMenu(type){
   document.getElementById("mainMenu").classList.add("hidden");
-  if(type === "stok") document.getElementById("stokMenu").classList.remove("hidden");
-  else document.getElementById("malMenu").classList.remove("hidden");
+  document.getElementById(type === "stok" ? "stokMenu" : "malMenu").classList.remove("hidden");
 }
 
-function openSheet(url){
+/* SHEET */
+function openSheet(url, name){
   document.getElementById("stokMenu").classList.add("hidden");
   document.getElementById("malMenu").classList.add("hidden");
   document.getElementById("sheetView").classList.remove("hidden");
+
   document.getElementById("frame").src = url;
+
+  speakScreen(name);
 }
 
+/* HOME */
 function home(){
   document.getElementById("mainMenu").classList.remove("hidden");
   document.getElementById("stokMenu").classList.add("hidden");
@@ -190,11 +207,22 @@ function home(){
   document.getElementById("sheetView").classList.add("hidden");
 }
 
-function toggle(){
-  document.body.classList.toggle("dark-mode");
+/* SES */
+function speakScreen(name){
+  const msg = new SpeechSynthesisUtterance(name + " ekranı açıldı");
+  msg.lang = "tr-TR";
+  msg.rate = 0.95;
+
+  speechSynthesis.cancel();
+
+  const voices = speechSynthesis.getVoices();
+  const tr = voices.find(v => v.lang.includes("tr"));
+  if(tr) msg.voice = tr;
+
+  speechSynthesis.speak(msg);
 }
 
-/* 🔊 SESLİ KARŞILAMA */
+/* HOŞ GELDİN */
 let spoken = false;
 
 function speakWelcome(){
@@ -202,17 +230,36 @@ function speakWelcome(){
   spoken = true;
 
   const msg = new SpeechSynthesisUtterance(
-    "Merhaba. Stok miktarları ve mal kabul ekranından hammadde ve yardımcı malzeme detaylarına erişebilirsiniz."
+    "Merhaba. Stok yönetim paneline hoş geldiniz. Menüden stok ve mal kabul ekranlarına ulaşabilirsiniz."
   );
 
   msg.lang = "tr-TR";
-  msg.rate = 1;
-  msg.pitch = 1;
+  msg.rate = 0.95;
 
-  window.speechSynthesis.speak(msg);
+  const voices = speechSynthesis.getVoices();
+  const tr = voices.find(v => v.lang.includes("tr"));
+  if(tr) msg.voice = tr;
+
+  speechSynthesis.cancel();
+  speechSynthesis.speak(msg);
 }
 
-/* ilk kullanıcı etkileşiminde çalışır */
+/* 🚀 SAYFA AÇILINCA SES (AUTO START) */
+window.addEventListener("load", () => {
+  setTimeout(() => {
+    const trySpeak = () => {
+      const voices = speechSynthesis.getVoices();
+      if (!voices || voices.length === 0) {
+        setTimeout(trySpeak, 200);
+        return;
+      }
+      speakWelcome();
+    };
+    trySpeak();
+  }, 300);
+});
+
+/* fallback kullanıcı etkileşimi */
 document.addEventListener("click", speakWelcome, { once: true });
 document.addEventListener("touchstart", speakWelcome, { once: true });
 
