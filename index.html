@@ -8,7 +8,6 @@
 
 <script src="https://cdn.tailwindcss.com"></script>
 
-<!-- PWA -->
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#0f172a">
 
@@ -32,7 +31,6 @@
     grid-template-rows: auto 1fr;
   }
 
-  /* TOP BAR (iOS safe area destekli) */
   #topBar {
     position: sticky;
     top: 0;
@@ -47,7 +45,6 @@
 
   .hidden { display: none !important; }
 
-  /* MAIN MENU */
   #mainMenu {
     height: 100%;
     display: flex;
@@ -72,7 +69,6 @@
   .stok { background: linear-gradient(135deg,#4f46e5,#7c3aed); }
   .mal  { background: linear-gradient(135deg,#f97316,#ef4444); }
 
-  /* SUB MENU */
   .subMenu {
     height: 100%;
     display: flex;
@@ -87,11 +83,6 @@
     font-size: 1.4rem;
     font-weight: bold;
     color: white;
-    transition: transform 0.2s;
-  }
-
-  .subItem:active {
-    transform: scale(0.98);
   }
 
   .hm  { background: linear-gradient(135deg,#6366f1,#4338ca); }
@@ -102,7 +93,6 @@
   .mh1 { background: linear-gradient(135deg,#a855f7,#7c3aed); }
   .mh2 { background: linear-gradient(135deg,#ec4899,#be185d); }
 
-  /* 🔥 MODERN VIEWER FRAME */
   #sheetView {
     height: 100%;
     padding: 12px;
@@ -115,7 +105,6 @@
     overflow: hidden;
     background: white;
     box-shadow: 0 10px 40px rgba(0,0,0,0.5);
-    border: 1px solid rgba(255,255,255,0.08);
   }
 
   iframe {
@@ -124,7 +113,6 @@
     border: none;
   }
 
-  /* floating home hint */
   .floatingHint {
     position: absolute;
     bottom: 12px;
@@ -140,19 +128,16 @@
 
 <div id="app">
 
-  <!-- TOP BAR -->
   <div id="topBar">
     <button onclick="home()">🏠</button>
     <button onclick="toggle()">🌙</button>
   </div>
 
-  <!-- MAIN -->
   <div id="mainMenu">
     <div class="menu-card stok" onclick="showSubMenu('stok')">📦 Stok Miktarları</div>
     <div class="menu-card mal" onclick="showSubMenu('mal')">📥 Mal Kabul</div>
   </div>
 
-  <!-- STOK -->
   <div id="stokMenu" class="hidden subMenu">
     <div class="subItem hm" onclick="openSheet(urls.hm)">Hammadde</div>
     <div class="subItem opp" onclick="openSheet(urls.opp)">OPP - BOBİN</div>
@@ -160,13 +145,11 @@
     <div class="subItem pet" onclick="openSheet(urls.pet)">PET - CAM - KAPAK</div>
   </div>
 
-  <!-- MAL -->
   <div id="malMenu" class="hidden subMenu">
     <div class="subItem mh1" onclick="openSheet(urls.mh1)">Gelen Hammadde</div>
     <div class="subItem mh2" onclick="openSheet(urls.mh2)">Yardımcı Malzeme</div>
   </div>
 
-  <!-- VIEWER -->
   <div id="sheetView" class="hidden">
     <div class="frameBox">
       <iframe id="frame"></iframe>
@@ -210,6 +193,28 @@ function home(){
 function toggle(){
   document.body.classList.toggle("dark-mode");
 }
+
+/* 🔊 SESLİ KARŞILAMA */
+let spoken = false;
+
+function speakWelcome(){
+  if(spoken) return;
+  spoken = true;
+
+  const msg = new SpeechSynthesisUtterance(
+    "Merhaba. Stok miktarları ve mal kabul ekranından hammadde ve yardımcı malzeme detaylarına erişebilirsiniz."
+  );
+
+  msg.lang = "tr-TR";
+  msg.rate = 1;
+  msg.pitch = 1;
+
+  window.speechSynthesis.speak(msg);
+}
+
+/* ilk kullanıcı etkileşiminde çalışır */
+document.addEventListener("click", speakWelcome, { once: true });
+document.addEventListener("touchstart", speakWelcome, { once: true });
 
 </script>
 
