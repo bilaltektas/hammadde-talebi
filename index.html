@@ -27,6 +27,7 @@
       border: none;
       width: 100%;
       height: 90vh;
+      background: #fff;
     }
     .fade-enter {
       animation: fadeIn 0.8s;
@@ -57,10 +58,10 @@
   <div id="stokMenu" class="hidden fade-enter">
     <h2 class="text-center text-2xl font-bold mb-4">📦 Stok Miktarları</h2>
     <div class="space-y-3">
-      <button class="w-full bg-indigo-600 hover:bg-indigo-700 p-3 rounded-lg" onclick="openPDF('https://docs.google.com/spreadsheets/d/e/2PACX-1vTNqOxfs7HAd05KsWVVL14sgKoLnR3vRnRFxeF-9geymh2lMOvjZH-agNftjODzzDhXd3vaT-7sDTQC/pub?gid=185627105&single=true&output=pdf')">Hammadde</button>
-      <button class="w-full bg-indigo-600 hover:bg-indigo-700 p-3 rounded-lg" onclick="openPDF('https://docs.google.com/spreadsheets/d/e/2PACX-1vTNqOxfs7HAd05KsWVVL14sgKoLnR3vRnRFxeF-9geymh2lMOvjZH-agNftjODzzDhXd3vaT-7sDTQC/pub?gid=326121089&single=true&output=pdf')">OPP-BOBİN</button>
-      <button class="w-full bg-indigo-600 hover:bg-indigo-700 p-3 rounded-lg" onclick="openPDF('https://docs.google.com/spreadsheets/d/e/2PACX-1vTNqOxfs7HAd05KsWVVL14sgKoLnR3vRnRFxeF-9geymh2lMOvjZH-agNftjODzzDhXd3vaT-7sDTQC/pub?gid=2101965769&single=true&output=pdf')">OMK-KOLİ</button>
-      <button class="w-full bg-indigo-600 hover:bg-indigo-700 p-3 rounded-lg" onclick="openPDF('https://docs.google.com/spreadsheets/d/e/2PACX-1vTNqOxfs7HAd05KsWVVL14sgKoLnR3vRnRFxeF-9geymh2lMOvjZH-agNftjODzzDhXd3vaT-7sDTQC/pub?gid=1845266626&single=true&output=pdf')">PET-CAM-KAPAK</button>
+      <button class="w-full bg-indigo-600 hover:bg-indigo-700 p-3 rounded-lg" onclick="openSheet('https://docs.google.com/spreadsheets/d/e/2PACX-1vTNqOxfs7HAd05KsWVVL14sgKoLnR3vRnRFxeF-9geymh2lMOvjZH-agNftjODzzDhXd3vaT-7sDTQC/pubhtml?gid=185627105&single=true')">Hammadde</button>
+      <button class="w-full bg-indigo-600 hover:bg-indigo-700 p-3 rounded-lg" onclick="openSheet('https://docs.google.com/spreadsheets/d/e/2PACX-1vTNqOxfs7HAd05KsWVVL14sgKoLnR3vRnRFxeF-9geymh2lMOvjZH-agNftjODzzDhXd3vaT-7sDTQC/pubhtml?gid=326121089&single=true')">OPP-BOBİN</button>
+      <button class="w-full bg-indigo-600 hover:bg-indigo-700 p-3 rounded-lg" onclick="openSheet('https://docs.google.com/spreadsheets/d/e/2PACX-1vTNqOxfs7HAd05KsWVVL14sgKoLnR3vRnRFxeF-9geymh2lMOvjZH-agNftjODzzDhXd3vaT-7sDTQC/pubhtml?gid=2101965769&single=true')">OMK-KOLİ</button>
+      <button class="w-full bg-indigo-600 hover:bg-indigo-700 p-3 rounded-lg" onclick="openSheet('https://docs.google.com/spreadsheets/d/e/2PACX-1vTNqOxfs7HAd05KsWVVL14sgKoLnR3vRnRFxeF-9geymh2lMOvjZH-agNftjODzzDhXd3vaT-7sDTQC/pubhtml?gid=1845266626&single=true')">PET-CAM-KAPAK</button>
     </div>
     <button class="mt-6 w-full bg-gray-700 hover:bg-gray-800 p-3 rounded-lg" onclick="goHome()">⬅ Ana Menü</button>
   </div>
@@ -69,16 +70,16 @@
   <div id="malMenu" class="hidden fade-enter">
     <h2 class="text-center text-2xl font-bold mb-4">📥 Mal Kabul</h2>
     <div class="space-y-3">
-      <button class="w-full bg-purple-600 hover:bg-purple-700 p-3 rounded-lg" onclick="openPDF('https://docs.google.com/spreadsheets/d/e/2PACX-1vTNqOxfs7HAd05KsWVVL14sgKoLnR3vRnRFxeF-9geymh2lMOvjZH-agNftjODzzDhXd3vaT-7sDTQC/pub?gid=949894360&single=true&output=pdf')">Gelen Hammadde</button>
-      <button class="w-full bg-purple-600 hover:bg-purple-700 p-3 rounded-lg" onclick="openPDF('https://docs.google.com/spreadsheets/d/e/2PACX-1vTNqOxfs7HAd05KsWVVL14sgKoLnR3vRnRFxeF-9geymh2lMOvjZH-agNftjODzzDhXd3vaT-7sDTQC/pub?gid=908017234&single=true&output=pdf')">Gelen Yardımcı Malzeme</button>
+      <button class="w-full bg-purple-600 hover:bg-purple-700 p-3 rounded-lg" onclick="openSheet('https://docs.google.com/spreadsheets/d/e/2PACX-1vTNqOxfs7HAd05KsWVVL14sgKoLnR3vRnRFxeF-9geymh2lMOvjZH-agNftjODzzDhXd3vaT-7sDTQC/pubhtml?gid=949894360&single=true')">Gelen Hammadde</button>
+      <button class="w-full bg-purple-600 hover:bg-purple-700 p-3 rounded-lg" onclick="openSheet('https://docs.google.com/spreadsheets/d/e/2PACX-1vTNqOxfs7HAd05KsWVVL14sgKoLnR3vRnRFxeF-9geymh2lMOvjZH-agNftjODzzDhXd3vaT-7sDTQC/pubhtml?gid=908017234&single=true')">Gelen Yardımcı Malzeme</button>
     </div>
     <button class="mt-6 w-full bg-gray-700 hover:bg-gray-800 p-3 rounded-lg" onclick="goHome()">⬅ Ana Menü</button>
   </div>
 
-  <!-- PDF Görüntüleme -->
-  <div id="pdfView" class="hidden fade-enter">
-    <h2 class="text-center text-2xl font-bold mb-4">📄 PDF Görüntüleme</h2>
-    <iframe id="pdfFrame"></iframe>
+  <!-- Tablo Görüntüleme -->
+  <div id="sheetView" class="hidden fade-enter">
+    <h2 class="text-center text-2xl font-bold mb-4">📊 Tablo Görüntüleme</h2>
+    <iframe id="sheetFrame"></iframe>
     <button class="mt-6 w-full bg-gray-700 hover:bg-gray-800 p-3 rounded-lg" onclick="goHome()">⬅ Ana Menü</button>
   </div>
 
@@ -92,16 +93,16 @@
         document.getElementById('malMenu').classList.remove('hidden');
       }
     }
-    function openPDF(url){
+    function openSheet(url){
       document.getElementById('stokMenu').classList.add('hidden');
       document.getElementById('malMenu').classList.add('hidden');
-      document.getElementById('pdfView').classList.remove('hidden');
-      document.getElementById('pdfFrame').src = url;
+      document.getElementById('sheetView').classList.remove('hidden');
+      document.getElementById('sheetFrame').src = url;
     }
     function goHome(){
       document.getElementById('stokMenu').classList.add('hidden');
       document.getElementById('malMenu').classList.add('hidden');
-      document.getElementById('pdfView').classList.add('hidden');
+      document.getElementById('sheetView').classList.add('hidden');
       document.getElementById('mainMenu').classList.remove('hidden');
     }
   </script>
