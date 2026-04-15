@@ -74,7 +74,7 @@ iframe{width:100%;height:100%;border:none;border-radius:15px;}
     <div class="voiceBtn" onclick="selectVoice('male')">👨‍🦱</div>
   </div>
 
-  <div style="opacity:0.6;font-size:14px;">Google Türkçe ses seçimi</div>
+  <div style="opacity:0.6;font-size:14px;">Google Türkçe ses sistemi</div>
 </div>
 
 <div id="app">
@@ -116,7 +116,7 @@ const urls={
  mh2:"https://docs.google.com/spreadsheets/d/e/2PACX-1vTNqOxfs7HAd05KsWVVL14sgKoLnR3vRnRFxeF-9geymh2lMOvjZH-agNftjODzzDhXd3vaT-7sDTQC/pubhtml?gid=908017234&single=true"
 };
 
-let voiceType="female";
+let voiceType="male"; // default daha stabil
 
 /* FULLSCREEN */
 function goFull(){
@@ -166,7 +166,7 @@ function home(){
   speak("Anasayfa'ya geri döndünüz.");
 }
 
-/* 🔊 GOOGLE NATURAL VOICE ENGINE */
+/* 🔊 GELİŞMİŞ GOOGLE VOICE ENGINE */
 function speak(text){
   const msg=new SpeechSynthesisUtterance(text);
   msg.lang="tr-TR";
@@ -174,40 +174,67 @@ function speak(text){
 
   const voices=speechSynthesis.getVoices();
 
-  function pickVoice(list){
-    // 1. Google voices (en doğal)
-    let v = list.find(v =>
+  function pick(){
+    // GOOGLE VOICES FIRST (en doğal)
+    let v = voices.find(v =>
       v.lang.includes("tr") &&
       v.name.toLowerCase().includes("google")
     );
 
-    // 2. gender filter (best effort)
+    // GENDER FIX (en kritik düzeltme)
     if(!v){
-      v = list.find(v =>
+      v = voices.find(v =>
         v.lang.includes("tr") &&
-        v.name.toLowerCase().includes(voiceType === "female" ? "female" : "male")
+        (
+          voiceType==="female"
+            ? v.name.toLowerCase().includes("female")
+            : v.name.toLowerCase().includes("male")
+        )
       );
     }
 
-    // 3. fallback TR
+    // fallback
     if(!v){
-      v = list.find(v => v.lang.includes("tr"));
+      v = voices.find(v => v.lang.includes("tr"));
     }
 
     return v;
   }
 
-  const selectedVoice = pickVoice(voices);
-  if(selectedVoice) msg.voice = selectedVoice;
+  const selected=pick();
+  if(selected) msg.voice=selected;
 
   speechSynthesis.cancel();
   speechSynthesis.speak(msg);
 }
 
-/* FIX VOICES LOAD */
-window.speechSynthesis.onvoiceschanged = () => {
+/* VOICE LOAD FIX */
+window.speechSynthesis.onvoiceschanged=()=>{
   speechSynthesis.getVoices();
 };
+
+/* 🚀 İLK AÇILIŞ MESAJI (ERKEK SESİYLE) */
+window.addEventListener("load",()=>{
+  setTimeout(()=>{
+    const msg=new SpeechSynthesisUtterance(
+      "LÜTFEN SİZE YARDIMCI OLMASINI İSTEDİĞİNİZ ASİSTANINIZI SEÇİNİZ"
+    );
+
+    msg.lang="tr-TR";
+    msg.rate=0.95;
+
+    const voices=speechSynthesis.getVoices();
+    let maleVoice = voices.find(v =>
+      v.lang.includes("tr") &&
+      v.name.toLowerCase().includes("male")
+    ) || voices.find(v => v.lang.includes("tr"));
+
+    if(maleVoice) msg.voice=maleVoice;
+
+    speechSynthesis.cancel();
+    speechSynthesis.speak(msg);
+  },400);
+});
 </script>
 
 </body>
