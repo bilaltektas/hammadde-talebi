@@ -2,10 +2,15 @@
 <html lang="tr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+
 <title>AI Stok Dashboard</title>
 
 <script src="https://cdn.tailwindcss.com"></script>
+
+<!-- PWA -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0f172a">
 
 <style>
   body {
@@ -13,6 +18,7 @@
     font-family: 'Segoe UI', sans-serif;
     height: 100dvh;
     overflow: hidden;
+    -webkit-tap-highlight-color: transparent;
   }
 
   .dark-mode {
@@ -26,15 +32,17 @@
     grid-template-rows: auto 1fr;
   }
 
+  /* TOP BAR (iOS safe area destekli) */
   #topBar {
     position: sticky;
     top: 0;
     z-index: 50;
     display: flex;
     justify-content: space-between;
-    padding: 10px 15px;
+    padding: 12px 16px;
+    padding-top: calc(12px + env(safe-area-inset-top));
     background: rgba(0,0,0,0.6);
-    backdrop-filter: blur(10px);
+    backdrop-filter: blur(14px);
   }
 
   .hidden { display: none !important; }
@@ -54,13 +62,17 @@
     font-size: 1.6rem;
     font-weight: bold;
     color: white;
-    cursor: pointer;
+    transition: transform 0.2s;
+  }
+
+  .menu-card:active {
+    transform: scale(0.98);
   }
 
   .stok { background: linear-gradient(135deg,#4f46e5,#7c3aed); }
   .mal  { background: linear-gradient(135deg,#f97316,#ef4444); }
 
-  /* 🔥 ALT MENÜ FULL SCREEN + EŞİT BLOK */
+  /* SUB MENU */
   .subMenu {
     height: 100%;
     display: flex;
@@ -68,40 +80,58 @@
   }
 
   .subItem {
-    flex: 1; /* eşit oran */
+    flex: 1;
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 1.4rem;
     font-weight: bold;
     color: white;
-    cursor: pointer;
     transition: transform 0.2s;
   }
 
-  .subItem:hover {
-    transform: scale(1.02);
+  .subItem:active {
+    transform: scale(0.98);
   }
 
-  /* STOK RENKLERİ */
   .hm  { background: linear-gradient(135deg,#6366f1,#4338ca); }
   .opp { background: linear-gradient(135deg,#f97316,#dc2626); }
   .omk { background: linear-gradient(135deg,#06b6d4,#2563eb); }
   .pet { background: linear-gradient(135deg,#22c55e,#15803d); }
 
-  /* MAL RENKLERİ */
   .mh1 { background: linear-gradient(135deg,#a855f7,#7c3aed); }
   .mh2 { background: linear-gradient(135deg,#ec4899,#be185d); }
+
+  /* 🔥 MODERN VIEWER FRAME */
+  #sheetView {
+    height: 100%;
+    padding: 12px;
+    background: #0b1220;
+  }
+
+  .frameBox {
+    height: 100%;
+    border-radius: 18px;
+    overflow: hidden;
+    background: white;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+    border: 1px solid rgba(255,255,255,0.08);
+  }
 
   iframe {
     width: 100%;
     height: 100%;
     border: none;
-    background: white;
   }
 
-  #sheetView {
-    height: 100%;
+  /* floating home hint */
+  .floatingHint {
+    position: absolute;
+    bottom: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 12px;
+    opacity: 0.5;
   }
 </style>
 </head>
@@ -116,70 +146,51 @@
     <button onclick="toggle()">🌙</button>
   </div>
 
-  <!-- MAIN MENU -->
+  <!-- MAIN -->
   <div id="mainMenu">
-
-    <div class="menu-card stok" onclick="showSubMenu('stok')">
-      📦 Stok Miktarları
-    </div>
-
-    <div class="menu-card mal" onclick="showSubMenu('mal')">
-      📥 Mal Kabul
-    </div>
-
+    <div class="menu-card stok" onclick="showSubMenu('stok')">📦 Stok Miktarları</div>
+    <div class="menu-card mal" onclick="showSubMenu('mal')">📥 Mal Kabul</div>
   </div>
 
-  <!-- 🔥 STOK ALT MENÜ (FULL SCREEN RENKLİ BLOKLAR) -->
+  <!-- STOK -->
   <div id="stokMenu" class="hidden subMenu">
-
-    <div class="subItem hm" onclick="openSheet('https://docs.google.com/spreadsheets/d/e/2PACX-1vTNqOxfs7HAd05KsWVVL14sgKoLnR3vRnRFxeF-9geymh2lMOvjZH-agNftjODzzDhXd3vaT-7sDTQC/pubhtml?gid=185627105&single=true')">
-      Hammadde
-    </div>
-
-    <div class="subItem opp" onclick="openSheet('https://docs.google.com/spreadsheets/d/e/2PACX-1vTNqOxfs7HAd05KsWVVL14sgKoLnR3vRnRFxeF-9geymh2lMOvjZH-agNftjODzzDhXd3vaT-7sDTQC/pubhtml?gid=326121089&single=true')">
-      OPP - BOBİN
-    </div>
-
-    <div class="subItem omk" onclick="openSheet('https://docs.google.com/spreadsheets/d/e/2PACX-1vTNqOxfs7HAd05KsWVVL14sgKoLnR3vRnRFxeF-9geymh2lMOvjZH-agNftjODzzDhXd3vaT-7sDTQC/pubhtml?gid=2101965769&single=true')">
-      OMK - KOLİ
-    </div>
-
-    <div class="subItem pet" onclick="openSheet('https://docs.google.com/spreadsheets/d/e/2PACX-1vTNqOxfs7HAd05KsWVVL14sgKoLnR3vRnRFxeF-9geymh2lMOvjZH-agNftjODzzDhXd3vaT-7sDTQC/pubhtml?gid=1845266626&single=true')">
-      PET - CAM - KAPAK
-    </div>
-
+    <div class="subItem hm" onclick="openSheet(urls.hm)">Hammadde</div>
+    <div class="subItem opp" onclick="openSheet(urls.opp)">OPP - BOBİN</div>
+    <div class="subItem omk" onclick="openSheet(urls.omk)">OMK - KOLİ</div>
+    <div class="subItem pet" onclick="openSheet(urls.pet)">PET - CAM - KAPAK</div>
   </div>
 
-  <!-- 🔥 MAL ALT MENÜ -->
+  <!-- MAL -->
   <div id="malMenu" class="hidden subMenu">
-
-    <div class="subItem mh1" onclick="openSheet('https://docs.google.com/spreadsheets/d/e/2PACX-1vTNqOxfs7HAd05KsWVVL14sgKoLnR3vRnRFxeF-9geymh2lMOvjZH-agNftjODzzDhXd3vaT-7sDTQC/pubhtml?gid=949894360&single=true')">
-      Gelen Hammadde
-    </div>
-
-    <div class="subItem mh2" onclick="openSheet('https://docs.google.com/spreadsheets/d/e/2PACX-1vTNqOxfs7HAd05KsWVVL14sgKoLnR3vRnRFxeF-9geymh2lMOvjZH-agNftjODzzDhXd3vaT-7sDTQC/pubhtml?gid=908017234&single=true')">
-      Yardımcı Malzeme
-    </div>
-
+    <div class="subItem mh1" onclick="openSheet(urls.mh1)">Gelen Hammadde</div>
+    <div class="subItem mh2" onclick="openSheet(urls.mh2)">Yardımcı Malzeme</div>
   </div>
 
-  <!-- SHEET VIEW -->
-  <div id="sheetView" class="hidden" style="height:100%;">
-    <iframe id="frame"></iframe>
+  <!-- VIEWER -->
+  <div id="sheetView" class="hidden">
+    <div class="frameBox">
+      <iframe id="frame"></iframe>
+    </div>
+    <div class="floatingHint">Çıkmak için 🏠</div>
   </div>
 
 </div>
 
 <script>
 
-function showSubMenu(menu){
-  document.getElementById("mainMenu").classList.add("hidden");
+const urls = {
+  hm: "https://docs.google.com/spreadsheets/d/e/2PACX-1vTNqOxfs7HAd05KsWVVL14sgKoLnR3vRnRFxeF-9geymh2lMOvjZH-agNftjODzzDhXd3vaT-7sDTQC/pubhtml?gid=185627105&single=true",
+  opp: "https://docs.google.com/spreadsheets/d/e/2PACX-1vTNqOxfs7HAd05KsWVVL14sgKoLnR3vRnRFxeF-9geymh2lMOvjZH-agNftjODzzDhXd3vaT-7sDTQC/pubhtml?gid=326121089&single=true",
+  omk: "https://docs.google.com/spreadsheets/d/e/2PACX-1vTNqOxfs7HAd05KsWVVL14sgKoLnR3vRnRFxeF-9geymh2lMOvjZH-agNftjODzzDhXd3vaT-7sDTQC/pubhtml?gid=2101965769&single=true",
+  pet: "https://docs.google.com/spreadsheets/d/e/2PACX-1vTNqOxfs7HAd05KsWVVL14sgKoLnR3vRnRFxeF-9geymh2lMOvjZH-agNftjODzzDhXd3vaT-7sDTQC/pubhtml?gid=1845266626&single=true",
+  mh1: "https://docs.google.com/spreadsheets/d/e/2PACX-1vTNqOxfs7HAd05KsWVVL14sgKoLnR3vRnRFxeF-9geymh2lMOvjZH-agNftjODzzDhXd3vaT-7sDTQC/pubhtml?gid=949894360&single=true",
+  mh2: "https://docs.google.com/spreadsheets/d/e/2PACX-1vTNqOxfs7HAd05KsWVVL14sgKoLnR3vRnRFxeF-9geymh2lMOvjZH-agNftjODzzDhXd3vaT-7sDTQC/pubhtml?gid=908017234&single=true"
+};
 
-  if(menu === "stok"){
-    document.getElementById("stokMenu").classList.remove("hidden");
-  } else {
-    document.getElementById("malMenu").classList.remove("hidden");
-  }
+function showSubMenu(type){
+  document.getElementById("mainMenu").classList.add("hidden");
+  if(type === "stok") document.getElementById("stokMenu").classList.remove("hidden");
+  else document.getElementById("malMenu").classList.remove("hidden");
 }
 
 function openSheet(url){
@@ -190,10 +201,10 @@ function openSheet(url){
 }
 
 function home(){
+  document.getElementById("mainMenu").classList.remove("hidden");
   document.getElementById("stokMenu").classList.add("hidden");
   document.getElementById("malMenu").classList.add("hidden");
   document.getElementById("sheetView").classList.add("hidden");
-  document.getElementById("mainMenu").classList.remove("hidden");
 }
 
 function toggle(){
