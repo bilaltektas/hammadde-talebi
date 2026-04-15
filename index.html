@@ -3,24 +3,25 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Stok Takip Dashboard</title>
-  <!-- Bootstrap -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <title>AI Stok Dashboard</title>
+  <!-- TailwindCSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
   <!-- Animate.css -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
-  <!-- Custom CSS -->
   <style>
     body {
-      background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+      background: radial-gradient(circle at top left, #0f172a, #1e293b);
       font-family: 'Segoe UI', sans-serif;
+      color: #f1f5f9;
     }
     .menu-card {
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      transition: transform 0.4s ease, box-shadow 0.4s ease;
       cursor: pointer;
+      background: linear-gradient(135deg, #1e3a8a, #9333ea);
     }
     .menu-card:hover {
-      transform: scale(1.05);
-      box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+      transform: translateY(-5px) scale(1.05);
+      box-shadow: 0 10px 25px rgba(0,0,0,0.4);
     }
     iframe {
       border: none;
@@ -36,82 +37,72 @@
     }
   </style>
 </head>
-<body>
-  <div class="container py-4">
-    <!-- Ana Menü -->
-    <div id="mainMenu" class="animate__animated animate__fadeIn">
-      <h2 class="text-center mb-4">📊 Ana Menü</h2>
-      <div class="row g-3">
-        <!-- Stok Miktarları -->
-        <div class="col-12">
-          <div class="card menu-card" onclick="showSubMenu('stok')">
-            <div class="card-body text-center">
-              <h4>Stok Miktarları</h4>
-            </div>
-          </div>
-        </div>
-        <!-- Mal Kabul -->
-        <div class="col-12">
-          <div class="card menu-card" onclick="showSubMenu('mal')">
-            <div class="card-body text-center">
-              <h4>Mal Kabul</h4>
-            </div>
-          </div>
-        </div>
+<body class="p-4">
+  <!-- Ana Menü -->
+  <div id="mainMenu" class="animate__animated animate__fadeIn">
+    <h1 class="text-center text-3xl font-bold mb-6">🤖 AI Stok Dashboard</h1>
+    <div class="grid gap-6">
+      <div class="menu-card rounded-xl p-6 text-center" onclick="showSubMenu('stok')">
+        <h2 class="text-xl font-semibold">📦 Stok Miktarları</h2>
+        <p class="text-sm mt-2">Hammadde ve stok takibi</p>
+      </div>
+      <div class="menu-card rounded-xl p-6 text-center" onclick="showSubMenu('mal')">
+        <h2 class="text-xl font-semibold">📥 Mal Kabul</h2>
+        <p class="text-sm mt-2">Gelen malzeme kontrolü</p>
       </div>
     </div>
+  </div>
 
-    <!-- Alt Menü: Stok -->
-    <div id="stokMenu" class="d-none fade-enter">
-      <h3 class="text-center mb-3">📦 Stok Miktarları</h3>
-      <div class="list-group">
-        <button class="list-group-item list-group-item-action" onclick="openPDF('https://docs.google.com/spreadsheets/d/e/2PACX-1vTNqOxfs7HAd05KsWVVL14sgKoLnR3vRnRFxeF-9geymh2lMOvjZH-agNftjODzzDhXd3vaT-7sDTQC/pub?gid=185627105&single=true&output=pdf')">Hammadde</button>
-        <button class="list-group-item list-group-item-action" onclick="openPDF('https://docs.google.com/spreadsheets/d/e/2PACX-1vTNqOxfs7HAd05KsWVVL14sgKoLnR3vRnRFxeF-9geymh2lMOvjZH-agNftjODzzDhXd3vaT-7sDTQC/pub?gid=326121089&single=true&output=pdf')">OPP-BOBİN</button>
-        <button class="list-group-item list-group-item-action" onclick="openPDF('https://docs.google.com/spreadsheets/d/e/2PACX-1vTNqOxfs7HAd05KsWVVL14sgKoLnR3vRnRFxeF-9geymh2lMOvjZH-agNftjODzzDhXd3vaT-7sDTQC/pub?gid=2101965769&single=true&output=pdf')">OMK-KOLİ</button>
-        <button class="list-group-item list-group-item-action" onclick="openPDF('https://docs.google.com/spreadsheets/d/e/2PACX-1vTNqOxfs7HAd05KsWVVL14sgKoLnR3vRnRFxeF-9geymh2lMOvjZH-agNftjODzzDhXd3vaT-7sDTQC/pub?gid=1845266626&single=true&output=pdf')">PET-CAM-KAPAK</button>
-      </div>
-      <button class="btn btn-secondary mt-3" onclick="goHome()">⬅ Ana Menü</button>
+  <!-- Stok Menü -->
+  <div id="stokMenu" class="hidden fade-enter">
+    <h2 class="text-center text-2xl font-bold mb-4">📦 Stok Miktarları</h2>
+    <div class="space-y-3">
+      <button class="w-full bg-indigo-600 hover:bg-indigo-700 p-3 rounded-lg" onclick="openPDF('https://docs.google.com/spreadsheets/d/e/2PACX-1vTNqOxfs7HAd05KsWVVL14sgKoLnR3vRnRFxeF-9geymh2lMOvjZH-agNftjODzzDhXd3vaT-7sDTQC/pub?gid=185627105&single=true&output=pdf')">Hammadde</button>
+      <button class="w-full bg-indigo-600 hover:bg-indigo-700 p-3 rounded-lg" onclick="openPDF('https://docs.google.com/spreadsheets/d/e/2PACX-1vTNqOxfs7HAd05KsWVVL14sgKoLnR3vRnRFxeF-9geymh2lMOvjZH-agNftjODzzDhXd3vaT-7sDTQC/pub?gid=326121089&single=true&output=pdf')">OPP-BOBİN</button>
+      <button class="w-full bg-indigo-600 hover:bg-indigo-700 p-3 rounded-lg" onclick="openPDF('https://docs.google.com/spreadsheets/d/e/2PACX-1vTNqOxfs7HAd05KsWVVL14sgKoLnR3vRnRFxeF-9geymh2lMOvjZH-agNftjODzzDhXd3vaT-7sDTQC/pub?gid=2101965769&single=true&output=pdf')">OMK-KOLİ</button>
+      <button class="w-full bg-indigo-600 hover:bg-indigo-700 p-3 rounded-lg" onclick="openPDF('https://docs.google.com/spreadsheets/d/e/2PACX-1vTNqOxfs7HAd05KsWVVL14sgKoLnR3vRnRFxeF-9geymh2lMOvjZH-agNftjODzzDhXd3vaT-7sDTQC/pub?gid=1845266626&single=true&output=pdf')">PET-CAM-KAPAK</button>
     </div>
+    <button class="mt-6 w-full bg-gray-700 hover:bg-gray-800 p-3 rounded-lg" onclick="goHome()">⬅ Ana Menü</button>
+  </div>
 
-    <!-- Alt Menü: Mal Kabul -->
-    <div id="malMenu" class="d-none fade-enter">
-      <h3 class="text-center mb-3">📥 Mal Kabul</h3>
-      <div class="list-group">
-        <button class="list-group-item list-group-item-action" onclick="openPDF('https://docs.google.com/spreadsheets/d/e/2PACX-1vTNqOxfs7HAd05KsWVVL14sgKoLnR3vRnRFxeF-9geymh2lMOvjZH-agNftjODzzDhXd3vaT-7sDTQC/pub?gid=949894360&single=true&output=pdf')">Gelen Hammadde</button>
-        <button class="list-group-item list-group-item-action" onclick="openPDF('https://docs.google.com/spreadsheets/d/e/2PACX-1vTNqOxfs7HAd05KsWVVL14sgKoLnR3vRnRFxeF-9geymh2lMOvjZH-agNftjODzzDhXd3vaT-7sDTQC/pub?gid=908017234&single=true&output=pdf')">Gelen Yardımcı Malzeme</button>
-      </div>
-      <button class="btn btn-secondary mt-3" onclick="goHome()">⬅ Ana Menü</button>
+  <!-- Mal Kabul Menü -->
+  <div id="malMenu" class="hidden fade-enter">
+    <h2 class="text-center text-2xl font-bold mb-4">📥 Mal Kabul</h2>
+    <div class="space-y-3">
+      <button class="w-full bg-purple-600 hover:bg-purple-700 p-3 rounded-lg" onclick="openPDF('https://docs.google.com/spreadsheets/d/e/2PACX-1vTNqOxfs7HAd05KsWVVL14sgKoLnR3vRnRFxeF-9geymh2lMOvjZH-agNftjODzzDhXd3vaT-7sDTQC/pub?gid=949894360&single=true&output=pdf')">Gelen Hammadde</button>
+      <button class="w-full bg-purple-600 hover:bg-purple-700 p-3 rounded-lg" onclick="openPDF('https://docs.google.com/spreadsheets/d/e/2PACX-1vTNqOxfs7HAd05KsWVVL14sgKoLnR3vRnRFxeF-9geymh2lMOvjZH-agNftjODzzDhXd3vaT-7sDTQC/pub?gid=908017234&single=true&output=pdf')">Gelen Yardımcı Malzeme</button>
     </div>
+    <button class="mt-6 w-full bg-gray-700 hover:bg-gray-800 p-3 rounded-lg" onclick="goHome()">⬅ Ana Menü</button>
+  </div>
 
-    <!-- PDF Görüntüleme -->
-    <div id="pdfView" class="d-none fade-enter">
-      <h3 class="text-center mb-3">📄 PDF Görüntüleme</h3>
-      <iframe id="pdfFrame"></iframe>
-      <button class="btn btn-secondary mt-3" onclick="goHome()">⬅ Ana Menü</button>
-    </div>
+  <!-- PDF Görüntüleme -->
+  <div id="pdfView" class="hidden fade-enter">
+    <h2 class="text-center text-2xl font-bold mb-4">📄 PDF Görüntüleme</h2>
+    <iframe id="pdfFrame"></iframe>
+    <button class="mt-6 w-full bg-gray-700 hover:bg-gray-800 p-3 rounded-lg" onclick="goHome()">⬅ Ana Menü</button>
   </div>
 
   <!-- JS -->
   <script>
     function showSubMenu(menu){
-      document.getElementById('mainMenu').classList.add('d-none');
+      document.getElementById('mainMenu').classList.add('hidden');
       if(menu === 'stok'){
-        document.getElementById('stokMenu').classList.remove('d-none');
+        document.getElementById('stokMenu').classList.remove('hidden');
       } else {
-        document.getElementById('malMenu').classList.remove('d-none');
+        document.getElementById('malMenu').classList.remove('hidden');
       }
     }
     function openPDF(url){
-      document.getElementById('stokMenu').classList.add('d-none');
-      document.getElementById('malMenu').classList.add('d-none');
-      document.getElementById('pdfView').classList.remove('d-none');
+      document.getElementById('stokMenu').classList.add('hidden');
+      document.getElementById('malMenu').classList.add('hidden');
+      document.getElementById('pdfView').classList.remove('hidden');
       document.getElementById('pdfFrame').src = url;
     }
     function goHome(){
-      document.getElementById('stokMenu').classList.add('d-none');
-      document.getElementById('malMenu').classList.add('d-none');
-      document.getElementById('pdfView').classList.add('d-none');
-      document.getElementById('mainMenu').classList.remove('d-none');
+      document.getElementById('stokMenu').classList.add('hidden');
+      document.getElementById('malMenu').classList.add('hidden');
+      document.getElementById('pdfView').classList.add('hidden');
+      document.getElementById('mainMenu').classList.remove('hidden');
     }
   </script>
 </body>
