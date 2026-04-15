@@ -5,32 +5,114 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Sanita Stok Kiosk</title>
 
-<script src="https://cdn.tailwindcss.com"></script>
-
 <style>
-body{margin:0;font-family:Segoe UI;height:100dvh;overflow:hidden;background:#0f172a;color:white;}
-
-#voiceSelect{
-  position:absolute;inset:0;
-  background:linear-gradient(135deg,#0f172a,#111827);
-  display:flex;flex-direction:column;justify-content:center;align-items:center;z-index:999;
-  gap:20px;text-align:center;
+body{
+  margin:0;
+  font-family:Segoe UI;
+  height:100dvh;
+  overflow:hidden;
+  background:#0f172a;
+  color:white;
 }
 
-.voiceBtn{
-  width:140px;height:140px;border-radius:20px;
-  font-size:60px;display:flex;align-items:center;justify-content:center;
-  background:#1f2937;
+/* INTRO */
+#intro{
+  position:absolute;
+  inset:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:#0b1220;
+  z-index:999;
+  animation: introFade 3s ease forwards;
 }
 
-#app{height:100dvh;display:grid;grid-template-rows:auto 1fr;}
-#topBar{display:flex;justify-content:center;padding:12px;background:rgba(0,0,0,0.5);}
-.homeBtn{width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,#4f46e5,#7c3aed);}
-.menu{display:flex;flex-direction:column;height:100%;}
-.card{flex:1;display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:bold;}
+#intro img{
+  width:220px;
+  filter: drop-shadow(0 0 25px rgba(255,255,255,0.12));
+  animation: logoPop 1.2s ease;
+}
+
+@keyframes logoPop{
+  0%{transform:scale(0.9);opacity:0}
+  100%{transform:scale(1);opacity:1}
+}
+
+@keyframes introFade{
+  0%{opacity:1}
+  70%{opacity:1}
+  100%{opacity:0;visibility:hidden}
+}
+
+/* APP */
+#app{
+  height:100dvh;
+  display:grid;
+  grid-template-rows:auto 1fr;
+  opacity:0;
+  animation: appIn 1s ease forwards;
+  animation-delay:2.8s;
+}
+
+@keyframes appIn{
+  from{opacity:0;transform:translateY(10px)}
+  to{opacity:1;transform:translateY(0)}
+}
+
+/* TOP */
+#topBar{
+  display:flex;
+  justify-content:center;
+  padding:12px;
+  background:rgba(0,0,0,0.5);
+}
+
+.homeBtn{
+  width:56px;height:56px;border-radius:50%;
+  background:linear-gradient(135deg,#4f46e5,#7c3aed);
+  font-size:22px;
+  color:white;
+}
+
+/* MENU */
+.menu{
+  display:flex;
+  flex-direction:column;
+  height:100%;
+}
+
+.card{
+  flex:1;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:26px;
+  font-weight:bold;
+  transition:all 0.4s ease;
+}
+
+.card:active{transform:scale(0.98)}
+
 .stok{background:linear-gradient(135deg,#4f46e5,#7c3aed);}
 .mal{background:linear-gradient(135deg,#f97316,#ef4444);}
-.sub{flex:1;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:bold;}
+
+/* SUB */
+.sub{
+  flex:1;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:20px;
+  font-weight:bold;
+  transition:all 0.4s ease;
+  animation: slideIn 0.6s ease;
+}
+
+@keyframes slideIn{
+  from{opacity:0;transform:translateY(20px)}
+  to{opacity:1;transform:translateY(0)}
+}
+
 .hidden{display:none!important;}
 
 .hm{background:#4338ca;}
@@ -40,23 +122,26 @@ body{margin:0;font-family:Segoe UI;height:100dvh;overflow:hidden;background:#0f1
 .mh1{background:#7c3aed;}
 .mh2{background:#be185d;}
 
-#sheet{height:100%;padding:10px;}
-iframe{width:100%;height:100%;border:none;border-radius:15px;}
+/* SHEET */
+#sheet{
+  height:100%;
+  padding:10px;
+}
+
+iframe{
+  width:100%;
+  height:100%;
+  border:none;
+  border-radius:16px;
+}
 </style>
 </head>
 
 <body>
 
-<!-- VOICE SELECT -->
-<div id="voiceSelect">
-  <div style="font-size:22px;font-weight:bold;">Ses Asistanını Seç</div>
-
-  <div style="display:flex;gap:20px;">
-    <div class="voiceBtn" onclick="selectVoice('female')">👩‍🦰</div>
-    <div class="voiceBtn" onclick="selectVoice('male')">👨‍🦱</div>
-  </div>
-
-  <div style="opacity:0.6;font-size:14px;">Ses sistemi yükleniyor...</div>
+<!-- INTRO LOGO -->
+<div id="intro">
+  <img src="https://www.sanitagida.com/img/beyazlogo.png">
 </div>
 
 <div id="app">
@@ -98,34 +183,12 @@ const urls={
  mh2:"https://docs.google.com/spreadsheets/d/e/2PACX-1vTNqOxfs7HAd05KsWVVL14sgKoLnR3vRnRFxeF-9geymh2lMOvjZH-agNftjODzzDhXd3vaT-7sDTQC/pubhtml?gid=908017234&single=true"
 };
 
-let voiceType=null;
 let voicesReady=false;
-
-/* VOICE CACHE FIX */
-function loadVoices(){
-  const v=speechSynthesis.getVoices();
-  if(v.length>0) voicesReady=true;
-  return v;
-}
-
-speechSynthesis.onvoiceschanged=loadVoices;
 
 /* FULLSCREEN */
 function goFull(){
   const el=document.documentElement;
   if(el.requestFullscreen) el.requestFullscreen();
-}
-
-/* VOICE SELECT */
-function selectVoice(type){
-  voiceType=type;
-
-  document.getElementById("voiceSelect").style.display="none";
-  document.getElementById("main").classList.remove("hidden");
-
-  goFull();
-
-  speak("Ben SANİTA Stok ve Mal Kabul Asistanıyım, nasıl yardımcı olabilirim?");
 }
 
 /* NAV */
@@ -135,7 +198,7 @@ function openSub(type){
 
   speak(type==="stok"
     ? "Stok Miktarlarını inceleyebilirsiniz."
-    : "Mal Kabul detaylarını inceyebilirsiniz."
+    : "Mal Kabul detaylarını inceleyebilirsiniz."
   );
 }
 
@@ -159,90 +222,47 @@ function home(){
   speak("Anasayfa'ya geri döndünüz.");
 }
 
-/* 🔊 %100 FIXED SPEECH ENGINE */
+/* 🔊 ULTRA STABLE GOOGLE VOICE ENGINE */
 function speak(text){
+  const msg=new SpeechSynthesisUtterance(text);
+  msg.lang="tr-TR";
+  msg.rate=0.95;
 
-  const run=()=>{
-    const msg=new SpeechSynthesisUtterance(text);
-    msg.lang="tr-TR";
-    msg.rate=0.95;
+  const voices=speechSynthesis.getVoices();
 
-    const voices=loadVoices();
+  let voice =
+    voices.find(v=>v.lang.includes("tr") && v.name.toLowerCase().includes("google")) ||
+    voices.find(v=>v.lang.includes("tr")) ||
+    voices[0];
 
-    function pickVoice(){
-      // 1 GOOGLE VOICES (en doğal)
-      let v=voices.find(v=>
-        v.lang.includes("tr") &&
-        v.name.toLowerCase().includes("google")
-      );
+  if(voice) msg.voice=voice;
 
-      // 2 GENDER FIX (GERÇEK DÜZELTME)
-      if(!v){
-        v=voices.find(v=>{
-          if(!v.lang.includes("tr")) return false;
-
-          const n=v.name.toLowerCase();
-
-          if(voiceType==="female"){
-            return n.includes("female") || n.includes("zira") || n.includes("tr") && !n.includes("male");
-          }else{
-            return n.includes("male") || n.includes("david") || n.includes("tr");
-          }
-        });
-      }
-
-      // 3 fallback
-      if(!v){
-        v=voices.find(v=>v.lang.includes("tr"));
-      }
-
-      return v;
-    }
-
-    const selected=pickVoice();
-    if(selected) msg.voice=selected;
-
-    speechSynthesis.cancel();
-    speechSynthesis.speak(msg);
-  };
-
-  // voice delay fix
-  if(!voicesReady){
-    let i=0;
-    const t=setInterval(()=>{
-      loadVoices();
-      i++;
-      if(voicesReady || i>10){
-        clearInterval(t);
-        run();
-      }
-    },150);
-  }else{
-    run();
-  }
+  speechSynthesis.cancel();
+  speechSynthesis.speak(msg);
 }
 
-/* 🚀 İLK MESAJ (KESİN ÇALIŞIR) */
+/* INTRO + FIRST SPEECH */
 window.addEventListener("load",()=>{
-  let i=0;
+  goFull();
 
+  let i=0;
   const t=setInterval(()=>{
     const v=speechSynthesis.getVoices();
     if(v.length>0){
       clearInterval(t);
 
       const msg=new SpeechSynthesisUtterance(
-        "LÜTFEN SİZE YARDIMCI OLMASINI İSTEDİĞİNİZ ASİSTANINIZI SEÇİNİZ"
+        "Lütfen Stok Miktarları veya Mal Kabul menüsünü seçiniz."
       );
 
       msg.lang="tr-TR";
       msg.rate=0.95;
 
-      // ERKEK SES ZORLAMASI
-      let male=v.find(x=>x.lang.includes("tr") && x.name.toLowerCase().includes("male"))
-              || v.find(x=>x.lang.includes("tr"));
+      let voice=
+        v.find(x=>x.lang.includes("tr") && x.name.toLowerCase().includes("google")) ||
+        v.find(x=>x.lang.includes("tr"));
 
-      if(male) msg.voice=male;
+      if(voice) msg.voice=voice;
 
       speechSynthesis.cancel();
       speechSynthesis.speak(msg);
@@ -251,6 +271,10 @@ window.addEventListener("load",()=>{
     i++;
     if(i>15) clearInterval(t);
   },200);
+
+  setTimeout(()=>{
+    document.getElementById("main").classList.remove("hidden");
+  },2800);
 });
 </script>
 
