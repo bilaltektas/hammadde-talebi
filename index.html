@@ -62,32 +62,6 @@ header{
   padding:10px;
   border-radius:10px;
 }
-
-input{
-  flex:1;
-  padding:10px;
-  border-radius:10px;
-  border:1px solid #ccc;
-}
-
-/* CARDS */
-.list{
-  display:grid;
-  gap:10px;
-}
-
-.card{
-  background:#fff;
-  padding:12px;
-  border-radius:12px;
-  box-shadow:0 2px 6px rgba(0,0,0,.08);
-  border-left:6px solid green;
-}
-
-/* RESPONSIVE */
-@media(min-width:768px){
-  .menu{grid-template-columns:1fr 1fr}
-}
 </style>
 </head>
 
@@ -95,152 +69,46 @@ input{
 
 <header id="title">ANA SAYFA</header>
 
-<!-- HOME -->
+<!-- ANA SAYFA -->
 <div id="home" class="screen active fade">
   <div class="menu">
-    <div class="btn" onclick="openMenu('STOK')">STOK MİKTARLARI</div>
+    <div class="btn" onclick="openMenu('HAMMADDE')">HAMMADDE</div>
     <div class="btn" onclick="openMenu('MALKABUL')">MAL KABUL</div>
   </div>
 </div>
 
-<!-- SUB -->
-<div id="sub" class="screen fade">
+<!-- HAMMADDE -->
+<div id="hammadde" class="screen fade">
   <div class="top">
     <button class="back" onclick="backHome()">←</button>
   </div>
-  <div id="submenu" class="menu"></div>
+  <iframe 
+    src="https://docs.google.com/spreadsheets/d/e/2PACX-1vTNqOxfs7HAd05KsWVVL14sgKoLnR3vRnRFxeF-9geymh2lMOvjZH-agNftjODzzDhXd3vaT-7sDTQC/pubhtml?gid=185627105&amp;single=true&amp;widget=true&amp;headers=false" 
+    width="100%" 
+    height="600" 
+    style="border:0">
+  </iframe>
 </div>
 
-<!-- TABLE -->
-<div id="table" class="screen fade">
+<!-- MAL KABUL -->
+<div id="malkabul" class="screen fade">
   <div class="top">
-    <button class="back" onclick="backSub()">←</button>
-    <input id="search" placeholder="Ara..." onkeyup="render()">
+    <button class="back" onclick="backHome()">←</button>
   </div>
-  <div id="list" class="list"></div>
+  <p>Mal kabul ekranı burada olacak.</p>
 </div>
 
 <script>
-/* =========================
-   GOOGLE SHEETS CSV LINKS
-   (Publish to web - CSV)
-========================= */
-const SHEETS = {
-  "HAMMADDE":
-  "https://docs.google.com/spreadsheets/d/e/2PACX-1vTNqOxfs7HAd05KsWVVL14sgKoLnR3vRnRFxeF-9geymh2lMOvjZH-agNftjODzzDhXd3vaT-7sDTQC/pub?gid=185627105&single=true&output=csv",
-
-  "OPP-BOBIN":
-  "https://docs.google.com/spreadsheets/d/e/2PACX-1vTNqOxfs7HAd05KsWVVL14sgKoLnR3vRnRFxeF-9geymh2lMOvjZH-agNftjODzzDhXd3vaT-7sDTQC/pub?gid=326121089&single=true&output=csv"
-};
-
-const MENUS = {
-  STOK: ["HAMMADDE","OPP-BOBIN"],
-  MALKABUL: []
-};
-
-let data=[];
-
-/* =========================
-   NAVIGATION
-========================= */
 function openMenu(type){
   document.getElementById("home").classList.remove("active");
-  document.getElementById("sub").classList.add("active");
+  document.getElementById(type.toLowerCase()).classList.add("active");
   document.getElementById("title").innerText=type;
-
-  const box=document.getElementById("submenu");
-  box.innerHTML="";
-
-  MENUS[type].forEach(x=>{
-    const d=document.createElement("div");
-    d.className="btn";
-    d.innerText=x;
-    d.onclick=()=>loadSheet(x);
-    box.appendChild(d);
-  });
 }
 
 function backHome(){
-  document.getElementById("sub").classList.remove("active");
+  document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
   document.getElementById("home").classList.add("active");
   document.getElementById("title").innerText="ANA SAYFA";
-}
-
-function backSub(){
-  document.getElementById("table").classList.remove("active");
-  document.getElementById("sub").classList.add("active");
-}
-
-/* =========================
-   FETCH CSV
-========================= */
-async function loadSheet(name){
-  const url=SHEETS[name];
-  if(!url){
-    alert("Sheet linki yok");
-    return;
-  }
-
-  document.getElementById("sub").classList.remove("active");
-  document.getElementById("table").classList.add("active");
-  document.getElementById("title").innerText=name;
-
-  try{
-    const res=await fetch(url);
-    const text=await res.text();
-    data=parseCSV(text);
-    render();
-  }catch(e){
-    alert("Veri çekilemedi (Google Sheets erişim sorunu)");
-    console.error(e);
-  }
-}
-
-/* =========================
-   CSV PARSER
-========================= */
-function parseCSV(text){
-  const lines=text.trim().split("\n");
-  const headers=lines[0].split(",");
-
-  return lines.slice(1).map(line=>{
-    const values=line.split(",");
-    let obj={};
-    headers.forEach((h,i)=>{
-      obj[h.trim()]=(values[i]||"").replace(/"/g,"").trim();
-    });
-    return obj;
-  });
-}
-
-/* =========================
-   RENDER
-========================= */
-function render(){
-  const q=document.getElementById("search").value.toLowerCase();
-  const box=document.getElementById("list");
-  box.innerHTML="";
-
-  data
-  .filter(x=>JSON.stringify(x).toLowerCase().includes(q))
-  .forEach(x=>{
-    const stok=Number(x.Stok)||0;
-    let color="green";
-    if(stok<5) color="red";
-    else if(stok<20) color="orange";
-
-    const d=document.createElement("div");
-    d.className="card";
-    d.style.borderLeft="6px solid "+color;
-
-    d.innerHTML=`
-      <b>${x.Ürün || "Ürün"}</b><br>
-      <small>${x.Kategori || "-"}</small><br>
-      <small>${x.Açıklama || "-"}</small><br>
-      <b>Stok: ${stok}</b>
-    `;
-    box.appendChild(d);
-  });
 }
 </script>
 
