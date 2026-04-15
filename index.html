@@ -139,7 +139,6 @@ iframe{
 
 <body>
 
-<!-- INTRO LOGO -->
 <div id="intro">
   <img src="https://www.sanitagida.com/img/beyazlogo.png">
 </div>
@@ -151,20 +150,20 @@ iframe{
   </div>
 
   <div id="main" class="menu hidden">
-    <div class="card stok" onclick="openSub('stok')">Stok Miktarları</div>
-    <div class="card mal" onclick="openSub('mal')">Mal Kabul</div>
+    <div class="card stok" onclick="openSub('stok')">STOK MİKTARLARI</div>
+    <div class="card mal" onclick="openSub('mal')">MAL KABUL</div>
   </div>
 
   <div id="stok" class="menu hidden">
-    <div class="sub hm" onclick="openSheet(urls.hm,'Hammadde Miktarlarını inceleyebilirsiniz.')">Hammadde</div>
+    <div class="sub hm" onclick="openSheet(urls.hm,'Hammadde Miktarlarını inceleyebilirsiniz.')">HAMMADDE</div>
     <div class="sub opp" onclick="openSheet(urls.opp,'Bobin Miktarlarını inceleyebilirsiniz.')">OPP - BOBİN</div>
     <div class="sub omk" onclick="openSheet(urls.omk,'Koli Miktarlarını inceleyebilirsiniz.')">OMK - KOLİ</div>
     <div class="sub pet" onclick="openSheet(urls.pet,'PET - CAM ve KAPAK Miktarlarını inceleyebilirsiniz.')">PET</div>
   </div>
 
   <div id="mal" class="menu hidden">
-    <div class="sub mh1" onclick="openSheet(urls.mh1,'Mal Kabulü gerçekleşen hammaddeleri inceyebilirsiniz.')">Gelen Hammadde</div>
-    <div class="sub mh2" onclick="openSheet(urls.mh2,'Mal kabulü gerçekleşen ambalaj , koli , kapak , şişe ve benzeri malzemeleri inceleyebilirsiniz.')">Yardımcı Malzeme</div>
+    <div class="sub mh1" onclick="openSheet(urls.mh1,'Mal Kabulü gerçekleşen hammaddeleri inceyebilirsiniz.')">GELEN HAMMADDE</div>
+    <div class="sub mh2" onclick="openSheet(urls.mh2,'Mal kabulü gerçekleşen ambalaj , koli , kapak , şişe ve benzeri malzemeleri inceleyebilirsiniz.')">YARDIMCI MALZEME</div>
   </div>
 
   <div id="sheet" class="hidden">
@@ -183,15 +182,11 @@ const urls={
  mh2:"https://docs.google.com/spreadsheets/d/e/2PACX-1vTNqOxfs7HAd05KsWVVL14sgKoLnR3vRnRFxeF-9geymh2lMOvjZH-agNftjODzzDhXd3vaT-7sDTQC/pubhtml?gid=908017234&single=true"
 };
 
-let voicesReady=false;
-
-/* FULLSCREEN */
 function goFull(){
   const el=document.documentElement;
   if(el.requestFullscreen) el.requestFullscreen();
 }
 
-/* NAV */
 function openSub(type){
   document.getElementById("main").classList.add("hidden");
   document.getElementById(type).classList.remove("hidden");
@@ -202,7 +197,6 @@ function openSub(type){
   );
 }
 
-/* SHEET */
 function openSheet(url,text){
   document.getElementById("stok").classList.add("hidden");
   document.getElementById("mal").classList.add("hidden");
@@ -212,7 +206,6 @@ function openSheet(url,text){
   speak(text);
 }
 
-/* HOME */
 function home(){
   document.getElementById("sheet").classList.add("hidden");
   document.getElementById("stok").classList.add("hidden");
@@ -222,7 +215,6 @@ function home(){
   speak("Anasayfa'ya geri döndünüz.");
 }
 
-/* 🔊 ULTRA STABLE GOOGLE VOICE ENGINE */
 function speak(text){
   const msg=new SpeechSynthesisUtterance(text);
   msg.lang="tr-TR";
@@ -241,7 +233,6 @@ function speak(text){
   speechSynthesis.speak(msg);
 }
 
-/* INTRO + FIRST SPEECH */
 window.addEventListener("load",()=>{
   goFull();
 
@@ -252,7 +243,7 @@ window.addEventListener("load",()=>{
       clearInterval(t);
 
       const msg=new SpeechSynthesisUtterance(
-        "Lütfen Stok Miktarları veya Mal Kabul menüsünü seçiniz."
+        "Sanita Stok ve Mal Kabul Bilgi Asistanına Hoşgeldiniz."
       );
 
       msg.lang="tr-TR";
