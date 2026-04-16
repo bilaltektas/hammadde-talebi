@@ -15,18 +15,18 @@ body{
   color:white;
 }
 
-/* PERFORMANS (hafif) */
+/* PERFORMANS */
 *{will-change:transform}
 
-/* INTRO (SADECE FIX) */
+/* INTRO */
 #intro{
-  position:fixed; /* absolute -> fixed */
+  position:fixed;
   inset:0;
   display:flex;
   align-items:center;
   justify-content:center;
   background:#0b1220;
-  z-index:9999; /* artırıldı */
+  z-index:9999;
   animation: introFade 3s ease forwards;
 }
 
@@ -41,7 +41,6 @@ body{
   100%{transform:scale(1);opacity:1}
 }
 
-/* DAHA STABİL FADE */
 @keyframes introFade{
   0%{opacity:1}
   70%{opacity:1}
@@ -95,9 +94,8 @@ body{
   display:flex;
   align-items:center;
   justify-content:center;
-  font-size:clamp(20px,4vw,26px); /* responsive */
+  font-size:clamp(20px,4vw,26px);
   font-weight:bold;
-  transition:all 0.4s ease;
 }
 
 .card:active{transform:scale(0.98)}
@@ -111,20 +109,12 @@ body{
   display:flex;
   align-items:center;
   justify-content:center;
-  font-size:clamp(16px,2.8vw,20px); /* responsive */
+  font-size:clamp(16px,2.8vw,20px);
   font-weight:bold;
-  transition:all 0.4s ease;
-  animation: slideIn 0.6s ease;
-}
-
-@keyframes slideIn{
-  from{opacity:0;transform:translateY(20px)}
-  to{opacity:1;transform:translateY(0)}
 }
 
 .hidden{display:none!important;}
 
-/* RENKLER */
 .mam{background:#0ea5e9;}
 .hm{background:#4338ca;}
 .opp{background:#dc2626;}
@@ -147,7 +137,7 @@ iframe{
   border-radius:16px;
 }
 
-/* LOADER (YENİ) */
+/* LOADER */
 #loader{
   position:absolute;
   inset:0;
@@ -170,12 +160,6 @@ iframe{
 
 @keyframes spin{
   to{transform:rotate(360deg)}
-}
-
-.loader-text{
-  margin-top:10px;
-  font-size:16px;
-  opacity:0.8;
 }
 </style>
 </head>
@@ -207,7 +191,7 @@ iframe{
 
   <div id="mal" class="menu hidden">
     <div class="sub mh1" onclick="openSheet(urls.mh1,'Mal Kabulü gerçekleşen hammaddeleri inceyebilirsiniz.')">GELEN HAMMADDE</div>
-    <div class="sub mh2" onclick="openSheet(urls.mh2,'Mal kabulü gerçekleşen ambalaj , koli , kapak , şişe ve benzeri malzemeleri inceleyebilirsiniz.')">YARDIMCI MALZEME</div>
+    <div class="sub mh2" onclick="openSheet(urls.mh2,'Yardımcı malzemeleri inceleyebilirsiniz.')">YARDIMCI MALZEME</div>
   </div>
 
   <div id="sheet" class="hidden">
@@ -231,9 +215,23 @@ const urls={
  mh2:"https://docs.google.com/spreadsheets/d/e/2PACX-1vTNqOxfs7HAd05KsWVVL14sgKoLnR3vRnRFxeF-9geymh2lMOvjZH-agNftjODzzDhXd3vaT-7sDTQC/pubhtml?gid=908017234&single=true"
 };
 
+/* === YENİ SESLER === */
+function speak(text){
+  const msg=new SpeechSynthesisUtterance(text);
+  msg.lang="tr-TR";
+  speechSynthesis.cancel();
+  speechSynthesis.speak(msg);
+}
+
 function openSub(type){
   document.getElementById("main").classList.add("hidden");
   document.getElementById(type).classList.remove("hidden");
+
+  if(type==="stok"){
+    speak("Stok Miktarlarını seçtiniz.");
+  }else{
+    speak("Mal kabulü seçtiniz.");
+  }
 }
 
 function openSheet(url,text){
@@ -257,13 +255,8 @@ function home(){
   document.getElementById("stok").classList.add("hidden");
   document.getElementById("mal").classList.add("hidden");
   document.getElementById("main").classList.remove("hidden");
-}
 
-function speak(text){
-  const msg=new SpeechSynthesisUtterance(text);
-  msg.lang="tr-TR";
-  speechSynthesis.cancel();
-  speechSynthesis.speak(msg);
+  speak("Anasayfaya döndünüz.");
 }
 
 window.addEventListener("load",()=>{
